@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nidal Trinidad · Contabilidad</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0ndXRmLTgnPz4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMiAzMiIgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIj4KICA8cGF0aCBkPSJNMTYgMiBMMjcgNiBMMjcgMjIgUTI3IDMwIDE2IDMyIFE1IDMwIDUgMjIgTDUgNiBaIiBmaWxsPSIjMGYyZTFhIi8+CiAgPGVsbGlwc2UgY3g9IjE2IiBjeT0iMjEiIHJ4PSI3IiByeT0iOSIgZmlsbD0iI2I4ODYwYiIvPgo8L3N2Zz4=">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300..800&family=Instrument+Serif:ital@0;1&family=Barlow+Condensed:wght@400;600;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+/* =====================================================
+   ART DIRECTION: Negocio agro-comercial premium colombiano
+   Palette: Verde oscuro (marca) + dorado cálido + neutros cálidos
+   Typography: Instrument Serif (display) + Plus Jakarta Sans (body)
+   Density: balanced-dense (dashboard)
+   ===================================================== */
+:root,[data-theme="light"]{
+  --color-bg:#f5f4ef;
+  --color-surface:#f9f8f4;
+  --color-surface-2:#fdfcfa;
+  --color-surface-offset:#eeecea;
+  --color-surface-offset-2:#e8e5e0;
+  --color-surface-dynamic:#dedad4;
+  --color-divider:#d6d2cb;
+  --color-border:#ccc8c0;
+  --color-text:#1e1c16;
+  --color-text-muted:#6b6960;
+  --color-text-faint:#b0ada6;
+  --color-text-inverse:#f5f4ef;
+  /* Brand: Deep Forest Green */
+  --color-primary:#0f2e1a;
+  --color-primary-hover:#0a2214;
+  --color-primary-active:#061610;
+  --color-primary-highlight:#d0ddd4;
+  /* Gold accent */
+  --color-gold:#b8860b;
+  --color-gold-hover:#9a7009;
+  --color-gold-highlight:#f6f1e8;
+  /* Functional */
+  --color-success:#2e6b1a;
+  --color-success-highlight:#cfdecb;
+  --color-warning:#9a5e0a;
+  --color-warning-highlight:#f0dfbc;
+  --color-error:#8b1e2e;
+  --color-error-highlight:#e8c8cd;
+  --color-info:#1a4a6e;
+  --color-info-highlight:#c8d8e8;
+  /* Radius */
+  --radius-sm:0.375rem;
+  --radius-md:0.5rem;
+  --radius-lg:0.75rem;
+  --radius-xl:1rem;
+  --radius-full:9999px;
+  /* Spacing */
+  --space-1:0.25rem;--space-2:0.5rem;--space-3:0.75rem;--space-4:1rem;
+  --space-5:1.25rem;--space-6:1.5rem;--space-8:2rem;--space-10:2.5rem;
+  --space-12:3rem;--space-16:4rem;
+  /* Type */
+  --text-xs:clamp(0.75rem,0.7rem + 0.25vw,0.875rem);
+  --text-sm:clamp(0.875rem,0.8rem + 0.35vw,1rem);
+  --text-base:clamp(1rem,0.95rem + 0.25vw,1.125rem);
+  --text-lg:clamp(1.125rem,1rem + 0.75vw,1.5rem);
+  --text-xl:clamp(1.5rem,1.2rem + 1.25vw,2.25rem);
+  /* Shadows */
+  --shadow-sm:0 1px 2px oklch(0.15 0.02 140 / 0.07);
+  --shadow-md:0 4px 12px oklch(0.15 0.02 140 / 0.10);
+  --shadow-lg:0 12px 32px oklch(0.15 0.02 140 / 0.14);
+  --transition:180ms cubic-bezier(0.16,1,0.3,1);
+  --sidebar-w:240px;
+  --font-display:'Instrument Serif',Georgia,serif;
+  --font-body:'Plus Jakarta Sans','Helvetica Neue',sans-serif;
+}
+[data-theme="dark"]{
+  --color-bg:#111210;
+  --color-surface:#171814;
+  --color-surface-2:#1c1e18;
+  --color-surface-offset:#191915;
+  --color-surface-offset-2:#1e201a;
+  --color-surface-dynamic:#272920;
+  --color-divider:#212318;
+  --color-border:#2e3025;
+  --color-text:#d4d2ca;
+  --color-text-muted:#7a7a6e;
+  --color-text-faint:#515148;
+  --color-text-inverse:#1a1c14;
+  --color-primary:#5a9e78;
+  --color-primary-hover:#4a8a68;
+  --color-primary-active:#2a5f40;
+  --color-primary-highlight:#213328;
+  --color-gold:#c8960c;
+  --color-gold-hover:#c08820;
+  --color-gold-highlight:#3a2e10;
+  --color-success:#5a9e40;
+  --color-success-highlight:#1e3018;
+  --color-warning:#c07820;
+  --color-warning-highlight:#3a2a10;
+  --color-error:#c0404a;
+  --color-error-highlight:#3a1820;
+  --color-info:#3a70a8;
+  --color-info-highlight:#182030;
+  --shadow-sm:0 1px 2px oklch(0 0 0 / 0.25);
+  --shadow-md:0 4px 12px oklch(0 0 0 / 0.35);
+  --shadow-lg:0 12px 32px oklch(0 0 0 / 0.45);
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme]){
+  --color-bg:#111210;--color-surface:#171814;--color-surface-2:#1c1e18;
+  --color-surface-offset:#191915;--color-surface-offset-2:#1e201a;
+  --color-surface-dynamic:#272920;--color-divider:#212318;--color-border:#2e3025;
+  --color-text:#d4d2ca;--color-text-muted:#7a7a6e;--color-text-faint:#515148;
+  --color-text-inverse:#1a1c14;--color-primary:#5a9e78;--color-primary-hover:#4a8a68;
+  --color-primary-active:#2a5f40;--color-primary-highlight:#213328;
+  --color-gold:#c8960c;--color-gold-highlight:#3a2e10;
+  --color-success:#5a9e40;--color-success-highlight:#1e3018;
+  --color-warning:#c07820;--color-warning-highlight:#3a2a10;
+  --color-error:#c0404a;--color-error-highlight:#3a1820;
+}}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth;scroll-padding-top:var(--space-16)}
+body{min-height:100dvh;font-family:var(--font-body);font-size:var(--text-base);color:var(--color-text);background:var(--color-bg);line-height:1.6}
+img,svg{display:block;max-width:100%}
+input,button,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:none}
+table{border-collapse:collapse;width:100%}
+h1,h2,h3,h4{line-height:1.15;text-wrap:balance}
+p{text-wrap:pretty;max-width:72ch}
+:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px;border-radius:var(--radius-sm)}
+a,button,[role="button"],input,textarea,select{transition:color var(--transition),background var(--transition),border-color var(--transition),box-shadow var(--transition),opacity var(--transition)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ── LAYOUT ── */
+.app-shell{display:flex;min-height:100dvh}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--sidebar-w);background:var(--color-primary);display:flex;flex-direction:column;z-index:100;overflow-y:auto;overflow-x:hidden;transition:transform var(--transition)}
+.sidebar-logo{padding:var(--space-6) var(--space-4) var(--space-4);border-bottom:1px solid oklch(from var(--color-text-inverse) l c h / 0.12)}
+.sidebar-logo-mark{display:flex;align-items:center;gap:var(--space-3)}
+.sidebar-logo-mark svg{flex-shrink:0}
+.sidebar-logo-name{font-family:var(--font-display);font-size:var(--text-lg);color:var(--color-text-inverse);line-height:1.1}
+.sidebar-logo-name span{display:block;font-family:var(--font-body);font-size:var(--text-xs);color:oklch(from var(--color-text-inverse) l c h / 0.65);font-style:normal;letter-spacing:0.1em;text-transform:uppercase;margin-top:2px}
+.sidebar-nav{flex:1;padding:var(--space-4) 0}
+.nav-section-label{font-size:var(--text-xs);font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:oklch(from var(--color-text-inverse) l c h / 0.45);padding:var(--space-5) var(--space-5) var(--space-2);font-family:'Barlow Condensed',var(--font-body)}
+.nav-item{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-5);color:oklch(from var(--color-text-inverse) l c h / 0.75);font-size:var(--text-sm);font-weight:500;text-decoration:none;border-radius:0;cursor:pointer;transition:color var(--transition),background var(--transition);position:relative;border:none;width:100%;text-align:left}
+.nav-item:hover{color:var(--color-text-inverse);background:oklch(from var(--color-text-inverse) l c h / 0.10)}
+.nav-item.active{color:var(--color-text-inverse);background:oklch(from var(--color-text-inverse) l c h / 0.16);font-weight:600}
+.nav-item.active::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;background:var(--color-gold);border-radius:0 2px 2px 0}
+.nav-item i{width:18px;height:18px;flex-shrink:0}
+.sidebar-footer{padding:var(--space-4);border-top:1px solid oklch(from var(--color-text-inverse) l c h / 0.12)}
+.main-content{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100dvh}
+.topbar{position:sticky;top:0;z-index:50;background:var(--color-surface);border-bottom:1px solid var(--color-divider);padding:0 var(--space-8);height:56px;display:flex;align-items:center;justify-content:space-between;gap:var(--space-4)}
+.topbar-title{font-size:var(--text-lg);font-weight:700;color:var(--color-text);font-family:'Barlow Condensed',var(--font-body);letter-spacing:0.04em;text-transform:uppercase}
+.topbar-actions{display:flex;align-items:center;gap:var(--space-3)}
+.page-content{padding:var(--space-8);flex:1}
+
+/* ── COMPONENTS ── */
+.btn{display:inline-flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-4);border-radius:var(--radius-md);font-size:var(--text-sm);font-weight:600;text-decoration:none;border:1px solid transparent;cursor:pointer;transition:all var(--transition);white-space:nowrap;min-height:36px}
+.btn-primary{background:var(--color-primary);color:var(--color-text-inverse);border-color:var(--color-primary)}
+.btn-primary:hover{background:var(--color-primary-hover);border-color:var(--color-primary-hover)}
+.btn-secondary{background:var(--color-surface-offset);color:var(--color-text);border-color:var(--color-border)}
+.btn-secondary:hover{background:var(--color-surface-dynamic)}
+.btn-ghost{background:transparent;color:var(--color-text-muted);border-color:transparent}
+.btn-ghost:hover{background:var(--color-surface-offset);color:var(--color-text)}
+.btn-danger{background:var(--color-error);color:#fff;border-color:var(--color-error)}
+.btn-sm{padding:var(--space-1) var(--space-3);font-size:var(--text-xs);min-height:28px}
+.btn-icon{padding:var(--space-2);min-width:36px;justify-content:center}
+
+.card{background:var(--color-surface);border:1px solid oklch(from var(--color-text) l c h / 0.08);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);padding:var(--space-6)}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-4)}
+.card-title{font-size:var(--text-base);font-weight:700;color:var(--color-text)}
+.card-subtitle{font-size:var(--text-xs);color:var(--color-text-muted);margin-top:2px}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(220px,100%),1fr));gap:var(--space-4);margin-bottom:var(--space-8)}
+.kpi-card{background:var(--color-surface);border:1px solid oklch(from var(--color-text) l c h / 0.07);border-radius:var(--radius-xl);padding:var(--space-5);box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:var(--space-2)}
+.kpi-label{font-size:var(--text-xs);font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-text-muted)}
+.kpi-value{font-size:var(--text-xl);font-weight:800;color:var(--color-text);font-variant-numeric:tabular-nums;line-height:1}
+.kpi-meta{font-size:var(--text-xs);color:var(--color-text-muted);display:flex;align-items:center;gap:var(--space-1)}
+.kpi-card.primary{background:var(--color-primary);border-color:transparent}
+.kpi-card.primary .kpi-label,.kpi-card.primary .kpi-meta{color:oklch(from var(--color-text-inverse) l c h / 0.7)}
+.kpi-card.primary .kpi-value{color:var(--color-text-inverse)}
+.kpi-card.gold{background:var(--color-gold-highlight);border-color:oklch(from var(--color-gold) l c h / 0.2)}
+.kpi-card.gold .kpi-value{color:var(--color-gold)}
+
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px var(--space-2);border-radius:var(--radius-full);font-size:var(--text-xs);font-weight:600}
+.badge-green{background:var(--color-success-highlight);color:var(--color-success)}
+.badge-yellow{background:var(--color-warning-highlight);color:var(--color-warning)}
+.badge-red{background:var(--color-error-highlight);color:var(--color-error)}
+.badge-blue{background:var(--color-info-highlight);color:var(--color-info)}
+.badge-neutral{background:var(--color-surface-offset);color:var(--color-text-muted)}
+
+.form-group{display:flex;flex-direction:column;gap:var(--space-2);margin-bottom:var(--space-4)}
+.form-label{font-size:var(--text-sm);font-weight:600;color:var(--color-text)}
+.form-label span{color:var(--color-error);margin-left:2px}
+.form-input,.form-select,.form-textarea{padding:var(--space-2) var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-md);font-size:var(--text-sm);background:var(--color-surface-2);color:var(--color-text);width:100%;transition:border-color var(--transition),box-shadow var(--transition)}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--color-primary);box-shadow:0 0 0 3px var(--color-primary-highlight)}
+.form-hint{font-size:var(--text-xs);color:var(--color-text-muted)}
+.form-error{font-size:var(--text-xs);color:var(--color-error)}
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:var(--space-4)}
+.form-textarea{resize:vertical;min-height:80px}
+
+.table-wrap{overflow-x:auto;border-radius:var(--radius-lg);border:1px solid oklch(from var(--color-text) l c h / 0.08)}
+.data-table{width:100%;font-size:var(--text-sm)}
+.data-table thead{background:var(--color-surface-offset)}
+.data-table th{padding:var(--space-3) var(--space-4);text-align:left;font-size:var(--text-xs);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-text-muted);white-space:nowrap}
+.data-table td{padding:var(--space-3) var(--space-4);border-top:1px solid oklch(from var(--color-text) l c h / 0.06);color:var(--color-text);vertical-align:middle}
+.data-table tbody tr:hover{background:var(--color-surface-offset)}
+.data-table .num{font-variant-numeric:tabular-nums;text-align:right}
+
+.modal-overlay{position:fixed;inset:0;background:oklch(0.1 0.02 140 / 0.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:var(--space-4);opacity:0;pointer-events:none;transition:opacity var(--transition)}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--color-surface);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);width:100%;max-width:560px;max-height:90dvh;overflow-y:auto;display:flex;flex-direction:column;transform:translateY(16px) scale(0.98);transition:transform var(--transition)}
+.modal-overlay.open .modal{transform:none}
+.modal-header{padding:var(--space-6) var(--space-6) var(--space-4);border-bottom:1px solid var(--color-divider);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--color-surface);z-index:1}
+.modal-title{font-size:var(--text-lg);font-weight:700}
+.modal-body{padding:var(--space-6)}
+.modal-footer{padding:var(--space-4) var(--space-6);border-top:1px solid var(--color-divider);display:flex;gap:var(--space-3);justify-content:flex-end;position:sticky;bottom:0;background:var(--color-surface)}
+
+.tabs{display:flex;gap:0;border-bottom:2px solid var(--color-divider);margin-bottom:var(--space-6)}
+.tab-btn{padding:var(--space-3) var(--space-5);font-size:var(--text-sm);font-weight:600;color:var(--color-text-muted);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;cursor:pointer;transition:all var(--transition)}
+.tab-btn:hover{color:var(--color-text)}
+.tab-btn.active{color:var(--color-primary);border-bottom-color:var(--color-primary)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+.empty-state{display:flex;flex-direction:column;align-items:center;text-align:center;padding:var(--space-16) var(--space-8);color:var(--color-text-muted)}
+.empty-state i{width:48px;height:48px;color:var(--color-text-faint);margin-bottom:var(--space-4)}
+.empty-state h3{color:var(--color-text);margin-bottom:var(--space-2);font-size:var(--text-base)}
+.empty-state p{max-width:36ch;margin-bottom:var(--space-6);font-size:var(--text-sm)}
+
+.toast-container{position:fixed;bottom:var(--space-6);right:var(--space-6);z-index:300;display:flex;flex-direction:column;gap:var(--space-2);max-width:360px}
+.toast{background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-4);display:flex;align-items:center;gap:var(--space-3);box-shadow:var(--shadow-md);font-size:var(--text-sm);transform:translateX(120%);transition:transform var(--transition)}
+.toast.show{transform:translateX(0)}
+.toast-success{border-color:var(--color-success);background:var(--color-success-highlight)}
+.toast-error{border-color:var(--color-error);background:var(--color-error-highlight)}
+
+/* ── HAMBURGER MOBILE ── */
+.sidebar-toggle{display:none;position:fixed;top:var(--space-4);left:var(--space-4);z-index:200;background:var(--color-primary);color:var(--color-text-inverse);padding:var(--space-2);border-radius:var(--radius-md);box-shadow:var(--shadow-md)}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:oklch(0 0 0 / 0.5);z-index:90}
+@media(max-width:768px){
+  .sidebar-toggle{display:flex;align-items:center;justify-content:center}
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.open{display:block}
+  .main-content{margin-left:0}
+  .topbar{padding:0 var(--space-4);padding-left:calc(var(--space-4)*3 + 36px)}
+  .page-content{padding:var(--space-4)}
+  .kpi-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){.kpi-grid{grid-template-columns:1fr}}
+
+/* ── THEME TOGGLE ── */
+.theme-toggle{padding:var(--space-2);border-radius:var(--radius-md);color:var(--color-text-muted);background:none;border:1px solid var(--color-border)}
+.theme-toggle:hover{background:var(--color-surface-offset);color:var(--color-text)}
+
+/* ── DATE FILTER ── */
+.date-filter{display:flex;align-items:center;gap:var(--space-2);background:var(--color-surface-offset);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-1) var(--space-2)}
+.date-filter select,.date-filter input{background:none;border:none;font-size:var(--text-sm);color:var(--color-text);padding:var(--space-1) var(--space-1)}
+.date-filter select:focus,.date-filter input:focus{outline:none}
+
+/* ── SEARCH ── */
+.search-wrap{position:relative}
+.search-wrap i{position:absolute;left:var(--space-3);top:50%;transform:translateY(-50%);color:var(--color-text-faint);width:16px;height:16px;pointer-events:none}
+.search-input{padding:var(--space-2) var(--space-3) var(--space-2) calc(var(--space-3)*2 + 16px);border:1px solid var(--color-border);border-radius:var(--radius-md);font-size:var(--text-sm);background:var(--color-surface-2);color:var(--color-text);min-width:200px}
+.search-input:focus{outline:none;border-color:var(--color-primary);box-shadow:0 0 0 3px var(--color-primary-highlight)}
+
+/* ── SECTION HEADER ── */
+.section-header{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);margin-bottom:var(--space-6);flex-wrap:wrap}
+.section-title{font-size:var(--text-lg);font-weight:700;color:var(--color-text)}
+.section-title small{display:block;font-size:var(--text-xs);font-weight:400;color:var(--color-text-muted);margin-top:2px}
+
+/* ── CHARTS ── */
+.chart-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:var(--space-6);margin-bottom:var(--space-8)}
+.chart-card{background:var(--color-surface);border:1px solid oklch(from var(--color-text) l c h / 0.08);border-radius:var(--radius-xl);padding:var(--space-5);box-shadow:var(--shadow-sm)}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:var(--color-divider);margin:var(--space-4) 0}
+
+/* ── BRAND: Barlow Condensed for display numbers and headings ── */
+.kpi-value { font-family: 'Barlow Condensed', var(--font-body); font-weight: 700; letter-spacing: 0.01em; }
+.sidebar-logo-name { font-family: 'Barlow Condensed', var(--font-body); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.section-title, .card-title, .modal-title { font-family: var(--font-body); }
+/* Brand gold accent on active nav gold bar — already uses var(--color-gold) = #b8860b */
+/* Tab active color aligned with brand primary */
+.tab-btn.active { color: var(--color-primary); border-bottom-color: var(--color-gold); }
+
+</style>
+</head>
+<body>
+
+<!-- Sidebar Toggle (mobile) -->
+<button class="sidebar-toggle" id="sidebarToggle" aria-label="Abrir menú">
+  <i data-lucide="menu" style="width:20px;height:20px"></i>
+</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar" role="navigation" aria-label="Menú principal">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-mark">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 158" width="30" height="40" aria-label="Nidal Trinidad icono">
+  <rect x="43" y="2" width="10" height="26" rx="2" fill="#0f2e1a"/>
+  <rect x="67" y="2" width="10" height="26" rx="2" fill="#0f2e1a"/>
+  <polygon points="53,2 63,2 77,28 67,28" fill="#b8860b"/>
+  <rect x="47" y="26" width="26" height="4" rx="2" fill="#0f2e1a" opacity=".2"/>
+  <path d="M60 31 L100 45 L100 98 Q100 131 60 143 Q20 131 20 98 L20 45 Z" fill="#0f2e1a"/>
+  <path d="M60 38 L94 50 L94 97 Q94 126 60 137 Q26 126 26 97 L26 50 Z" fill="none" stroke="#b8860b" stroke-width=".9" opacity=".30"/>
+  <path d="M26 104 Q60 118 94 104" fill="none" stroke="#b8860b" stroke-width="2.8" stroke-linecap="round"/>
+  <path d="M31 111 Q60 123 89 111" fill="none" stroke="#b8860b" stroke-width="1.4" stroke-linecap="round" opacity=".36"/>
+  <ellipse cx="44" cy="91" rx="10" ry="13" fill="#f6f1e8" stroke="#b8860b" stroke-width="1.5"/>
+  <ellipse cx="60" cy="87" rx="13" ry="17" fill="#b8860b" stroke="#0f2e1a" stroke-width="1.8"/>
+  <ellipse cx="76" cy="91" rx="10" ry="13" fill="#f6f1e8" stroke="#b8860b" stroke-width="1.5"/>
+</svg>
+      <div class="sidebar-logo-name" style="font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:0.04em">
+        NIDAL TRINIDAD
+        <span style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:500">Contabilidad</span>
+      </div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Principal</div>
+    <button class="nav-item active" data-page="dashboard" onclick="navigate('dashboard',this)">
+      <i data-lucide="layout-dashboard"></i> Dashboard
+    </button>
+
+    <div class="nav-section-label">Operaciones</div>
+    <button class="nav-item" data-page="ventas" onclick="navigate('ventas',this)">
+      <i data-lucide="shopping-cart"></i> Ventas
+    </button>
+    <button class="nav-item" data-page="gastos" onclick="navigate('gastos',this)">
+      <i data-lucide="trending-down"></i> Gastos
+    </button>
+    <button class="nav-item" data-page="cartera" onclick="navigate('cartera',this)">
+      <i data-lucide="credit-card"></i> Cartera
+    </button>
+
+    <div class="nav-section-label">Gestión</div>
+    <button class="nav-item" data-page="clientes" onclick="navigate('clientes',this)">
+      <i data-lucide="users"></i> Clientes
+    </button>
+    <button class="nav-item" data-page="productos" onclick="navigate('productos',this)">
+      <i data-lucide="package"></i> Productos
+    </button>
+
+    <div class="nav-section-label">Análisis</div>
+    <button class="nav-item" data-page="reportes" onclick="navigate('reportes',this)">
+      <i data-lucide="bar-chart-2"></i> Reportes
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <button class="nav-item" data-page="config" onclick="navigate('config',this)">
+      <i data-lucide="settings"></i> Configuración
+    </button>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main-content">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:var(--space-4)">
+    <h1 class="topbar-title" id="pageTitle">Dashboard</h1>
+  </div>
+    <div class="topbar-actions">
+      <div class="date-filter" id="globalDateFilter">
+        <i data-lucide="calendar" style="width:14px;height:14px;color:var(--color-text-muted)"></i>
+        <select id="filterPeriod" onchange="applyFilter()">
+          <option value="today">Hoy</option>
+          <option value="week">Esta semana</option>
+          <option value="month" selected>Este mes</option>
+          <option value="year">Este año</option>
+          <option value="custom">Personalizado</option>
+        </select>
+      </div>
+      <button class="theme-toggle" data-theme-toggle aria-label="Cambiar tema">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="page-content" id="mainContent">
+    <!-- Content rendered by JS -->
+  </main>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Modals -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modalTitle">Modal</h2>
+      <button class="btn btn-ghost btn-icon btn-sm" onclick="closeModal()" aria-label="Cerrar">
+        <i data-lucide="x" style="width:16px;height:16px"></i>
+      </button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<script>
+// =====================================================
+// DATA STORE (sincronizado en la nube vía Firebase Firestore)
+// =====================================================
+const DB = {
+  productos: [
+    {id:1,cat:'C',nombre:'Huevo C',mayoristaPorHuevo:333,mayoristaCubeta:10000,detalPorHuevo:350,detalCubeta:10500,activo:true},
+    {id:2,cat:'B',nombre:'Huevo B',mayoristaPorHuevo:367,mayoristaCubeta:11000,detalPorHuevo:400,detalCubeta:12000,activo:true},
+    {id:3,cat:'A',nombre:'Huevo A',mayoristaPorHuevo:433,mayoristaCubeta:13000,detalPorHuevo:467,detalCubeta:14000,activo:true},
+    {id:4,cat:'AA',nombre:'Huevo AA',mayoristaPorHuevo:500,mayoristaCubeta:15000,detalPorHuevo:533,detalCubeta:16000,activo:true},
+    {id:5,cat:'AAA',nombre:'Huevo AAA',mayoristaPorHuevo:567,mayoristaCubeta:17000,detalPorHuevo:633,detalCubeta:19000,activo:true},
+    {id:6,cat:'JUMBO',nombre:'Huevo JUMBO',mayoristaPorHuevo:633,mayoristaCubeta:19000,detalPorHuevo:767,detalCubeta:23000,activo:true},
+  ],
+  clientes: [
+    {id:1,nombre:'Tienda El Progreso',telefono:'3001234567',zona:'Centro',tipo:'mayorista',saldo:0,notas:'Cliente habitual'},
+    {id:2,nombre:'Restaurante El Buen Sabor',telefono:'3109876543',zona:'Norte',tipo:'detal',saldo:45000,notas:'Paga cada 15 días'},
+    {id:3,nombre:'Supermercado Familiar',telefono:'3204561234',zona:'Sur',tipo:'mayorista',saldo:0,notas:''},
+  ],
+  ventas: [],
+  gastos: [],
+  nextVentaId:1,
+  nextGastoId:1,
+  nextClienteId:4,
+};
+
+// =====================================================
+// PERSISTENCE — Firebase Firestore (tiempo real) + export/import backup
+// =====================================================
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAfkKGXeNQdD2QAVEAacbmPyHyvCgj9e1k",
+  authDomain: "nidal-contabilidad.firebaseapp.com",
+  projectId: "nidal-contabilidad",
+  storageBucket: "nidal-contabilidad.firebasestorage.app",
+  messagingSenderId: "364536524740",
+  appId: "1:364536524740:web:ae533bec9549a33c607e91",
+  measurementId: "G-JR3JEV1GTF"
+};
+
+const DOC_PATH = { collection: "nidalTrinidad", doc: "contabilidad" };
+
+let _db = null;
+let _docRef = null;
+let _isRemoteUpdate = false;
+let _firestoreReady = false;
+
+function initFirebase(){
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    _db = firebase.firestore();
+    _docRef = _db.collection(DOC_PATH.collection).doc(DOC_PATH.doc);
+    _firestoreReady = true;
+    _docRef.onSnapshot(snap=>{
+      if(!snap.exists) return;
+      const s = snap.data();
+      _isRemoteUpdate = true;
+      if(s.ventas) DB.ventas = s.ventas;
+      if(s.gastos) DB.gastos = s.gastos;
+      if(s.clientes) DB.clientes = s.clientes;
+      if(s.productos) DB.productos = s.productos;
+      if(s.nextVentaId) DB.nextVentaId = s.nextVentaId;
+      if(s.nextGastoId) DB.nextGastoId = s.nextGastoId;
+      if(s.nextClienteId) DB.nextClienteId = s.nextClienteId;
+      renderPage(currentPage);
+      showToast('Datos actualizados por un socio ✓','success');
+      _isRemoteUpdate = false;
+    }, err=>{
+      console.warn('onSnapshot error', err);
+      showToast('Error de sincronización: '+err.message,'error');
+    });
+  }catch(e){
+    console.warn('initFirebase error', e);
+    showToast('No se pudo conectar a la base de datos en la nube','error');
+  }
+}
+
+function saveDB(){
+  if(!_firestoreReady || !_docRef) return;
+  if(_isRemoteUpdate) return;
+  try{
+    _docRef.set({
+      ventas: DB.ventas, gastos: DB.gastos, clientes: DB.clientes,
+      productos: DB.productos, nextVentaId: DB.nextVentaId,
+      nextGastoId: DB.nextGastoId, nextClienteId: DB.nextClienteId,
+      actualizadoEn: new Date().toISOString()
+    }).catch(e=>{
+      console.warn('saveDB error', e);
+      showToast('Error al guardar en la nube: '+e.message,'error');
+    });
+  }catch(e){console.warn('saveDB error',e);}
+}
+
+function loadDB(){
+  // Los datos se cargan de forma asíncrona vía onSnapshot en initFirebase().
+  // Esta función se conserva por compatibilidad pero no hace falta llamarla directamente.
+  return false;
+}
+
+function exportarDatos(){
+  const snap={exportado:new Date().toISOString(),version:1,negocio:'Nidal Trinidad',
+    ventas:DB.ventas,gastos:DB.gastos,clientes:DB.clientes,productos:DB.productos,
+    nextVentaId:DB.nextVentaId,nextGastoId:DB.nextGastoId,nextClienteId:DB.nextClienteId};
+  const blob=new Blob([JSON.stringify(snap,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='nidal-backup-'+new Date().toISOString().split('T')[0]+'.json';
+  a.click();
+  showToast('Backup descargado correctamente','success');
+}
+
+function importarDatos(){
+  const input=document.createElement('input');
+  input.type='file';input.accept='.json';
+  input.onchange=e=>{
+    const file=e.target.files[0];if(!file) return;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      try{
+        const s=JSON.parse(ev.target.result);
+        if(!s.ventas||!s.gastos) throw new Error('Archivo no válido');
+        DB.ventas=s.ventas||[];DB.gastos=s.gastos||[];DB.clientes=s.clientes||[];
+        if(s.productos) DB.productos=s.productos;
+        DB.nextVentaId=s.nextVentaId||1;DB.nextGastoId=s.nextGastoId||1;DB.nextClienteId=s.nextClienteId||1;
+        saveDB();
+        showToast('Datos restaurados correctamente','success');
+        renderPage(currentPage);
+      }catch(err){showToast('Error al leer el archivo: '+err.message,'error');}
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+// =====================================================
+// UTILS
+// =====================================================
+const fmt = v => new Intl.NumberFormat('es-CO',{style:'currency',currency:'COP',maximumFractionDigits:0}).format(v);
+const fmtN = v => new Intl.NumberFormat('es-CO').format(v);
+const today = () => new Date().toISOString().split('T')[0];
+const dateOf = s => new Date(s+'T00:00:00');
+
+function filterByPeriod(arr, dateField){
+  const p = document.getElementById('filterPeriod')?.value||'month';
+  const now = new Date();
+  return arr.filter(r=>{
+    const d = dateOf(r[dateField]);
+    if(p==='today') return r[dateField]===today();
+    if(p==='week'){const w=new Date(now);w.setDate(w.getDate()-6);return d>=w}
+    if(p==='month') return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
+    if(p==='year') return d.getFullYear()===now.getFullYear();
+    return true;
+  });
+}
+
+function applyFilter(){ renderPage(currentPage); }
+
+
+// =====================================================
+// WELCOME + RESET
+// =====================================================
+function mostrarBienvenida(){
+  document.getElementById('modalTitle').textContent = '¡Bienvenido a Nidal Trinidad!';
+  document.getElementById('modalBody').innerHTML = `
+    <div style="text-align:center;padding:var(--space-4) 0">
+      <div style="font-size:48px;margin-bottom:var(--space-4)">🥚</div>
+      <p style="font-size:var(--text-base);color:var(--color-text);margin-bottom:var(--space-3);max-width:100%">
+        Tu app de contabilidad está lista. No tienes datos guardados aún.
+      </p>
+      <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-6);max-width:100%">
+        Empieza a registrar tus ventas, gastos y clientes. Todo se sincroniza automáticamente con tus socios.
+      </p>
+      <div style="display:flex;flex-direction:column;gap:var(--space-3)">
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="closeModal();showToast('¡Todo listo! Empieza registrando tu primera venta.','success')">
+          <i data-lucide="play-circle" style="width:16px;height:16px"></i> Empezar a registrar
+        </button>
+      </div>
+    </div>`;
+  document.getElementById('modalFooter').innerHTML = '';
+  openModal();
+}
+
+// =====================================================
+// NAVIGATION
+// =====================================================
+let currentPage='dashboard';
+const pageTitles={dashboard:'Dashboard',ventas:'Ventas',gastos:'Gastos',cartera:'Cartera',clientes:'Clientes',productos:'Productos y Precios',reportes:'Reportes',config:'Configuración'};
+
+function navigate(page, btn){
+  currentPage=page;
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.getElementById('pageTitle').textContent=pageTitles[page]||page;
+  renderPage(page);
+  // Close mobile sidebar
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+  lucide.createIcons();
+}
+
+function renderPage(page){
+  const mc=document.getElementById('mainContent');
+  mc.innerHTML='';
+  const pages={dashboard:renderDashboard,ventas:renderVentas,gastos:renderGastos,cartera:renderCartera,clientes:renderClientes,productos:renderProductos,reportes:renderReportes,config:renderConfig};
+  if(pages[page]) pages[page](mc);
+  lucide.createIcons();
+}
+
+// =====================================================
+// DASHBOARD
+// =====================================================
+function renderDashboard(mc){
+  const ventas=filterByPeriod(DB.ventas,'fecha');
+  const gastos=filterByPeriod(DB.gastos,'fecha');
+  const totalVentas=ventas.reduce((a,v)=>a+v.total,0);
+  const totalGastos=gastos.reduce((a,v)=>a+v.monto,0);
+  const utilidad=totalVentas-totalGastos;
+  const carteraPendiente=DB.ventas.filter(v=>v.saldo>0).reduce((a,v)=>a+v.saldo,0);
+  const ventasHoy=DB.ventas.filter(v=>v.fecha===today()).reduce((a,v)=>a+v.total,0);
+
+  const periodLabel = labelPeriodo();
+  mc.innerHTML=`
+  <div style="margin-bottom:var(--space-6);padding-bottom:var(--space-4);border-bottom:1px solid var(--color-divider)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 160" height="40" style="max-width:260px;display:block;">
+  <rect x="24" y="4" width="7" height="22" rx="1.5" fill="#0f2e1a"/>
+  <rect x="41" y="4" width="7" height="22" rx="1.5" fill="#0f2e1a"/>
+  <polygon points="31,4 38,4 48,26 41,26" fill="#b8860b"/>
+  <rect x="27" y="24" width="21" height="3" rx="1.5" fill="#0f2e1a" opacity=".2"/>
+  <path d="M36 28 L62 37 L62 96 Q62 128 36 138 Q10 128 10 96 L10 37 Z" fill="#0f2e1a"/>
+  <path d="M36 33 L58 41 L58 95 Q58 122 36 131 Q14 122 14 95 L14 41 Z" fill="none" stroke="#b8860b" stroke-width=".7" opacity=".30"/>
+  <path d="M14 102 Q36 114 58 102" fill="none" stroke="#b8860b" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M18 108 Q36 118 54 108" fill="none" stroke="#b8860b" stroke-width="1.1" stroke-linecap="round" opacity=".36"/>
+  <ellipse cx="25" cy="89" rx="7" ry="9" fill="#f6f1e8" stroke="#b8860b" stroke-width="1.2"/>
+  <ellipse cx="36" cy="85" rx="9" ry="11.5" fill="#b8860b" stroke="#0f2e1a" stroke-width="1.4"/>
+  <ellipse cx="47" cy="89" rx="7" ry="9" fill="#f6f1e8" stroke="#b8860b" stroke-width="1.2"/>
+  <text x="82" y="62" font-family="Barlow Condensed, sans-serif" font-weight="900" font-size="46" fill="#0f2e1a" letter-spacing="3">NIDAL</text>
+  <text x="82" y="85" font-family="Barlow Condensed, sans-serif" font-weight="600" font-size="18" fill="#b8860b" letter-spacing="6">TRINIDAD</text>
+  <line x1="82" y1="104" x2="430" y2="104" stroke="#b8860b" stroke-width=".8" opacity=".45"/>
+  <text x="82" y="120" font-family="Barlow Condensed, sans-serif" font-weight="400" font-size="14" fill="#5a5a5a" letter-spacing="2" font-style="italic">El huevo que se distingue</text>
+</svg></div>
+  <div class="kpi-grid">
+    <div class="kpi-card primary">
+      <div class="kpi-label">Ventas ${labelPeriodo()}</div>
+      <div class="kpi-value">${fmt(totalVentas)}</div>
+      <div class="kpi-meta"><i data-lucide="trending-up" style="width:12px;height:12px"></i> ${ventas.length} transacciones</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Gastos ${labelPeriodo()}</div>
+      <div class="kpi-value">${fmt(totalGastos)}</div>
+      <div class="kpi-meta"><i data-lucide="trending-down" style="width:12px;height:12px"></i> ${gastos.length} registros</div>
+    </div>
+    <div class="kpi-card ${utilidad>=0?'gold':''}">
+      <div class="kpi-label">Utilidad bruta</div>
+      <div class="kpi-value" style="color:${utilidad>=0?'var(--color-gold)':'var(--color-error)'}">${fmt(utilidad)}</div>
+      <div class="kpi-meta">Margen: ${totalVentas>0?((utilidad/totalVentas)*100).toFixed(1)+'%':'—'}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Cartera pendiente</div>
+      <div class="kpi-value" style="color:${carteraPendiente>0?'var(--color-warning)':'var(--color-success)'}">${fmt(carteraPendiente)}</div>
+      <div class="kpi-meta"><i data-lucide="clock" style="width:12px;height:12px"></i> ${DB.ventas.filter(v=>v.saldo>0).length} cuentas</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Ventas hoy</div>
+      <div class="kpi-value">${fmt(ventasHoy)}</div>
+      <div class="kpi-meta">${DB.ventas.filter(v=>v.fecha===today()).length} ventas registradas</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Clientes activos</div>
+      <div class="kpi-value">${DB.clientes.length}</div>
+      <div class="kpi-meta"><i data-lucide="users" style="width:12px;height:12px"></i> en el sistema</div>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-card">
+      <div class="card-header">
+        <div><div class="card-title">Ventas vs Gastos (últimos 6 meses)</div></div>
+      </div>
+      <canvas id="chartVentasGastos" height="200"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="card-header">
+        <div><div class="card-title">Ventas por categoría</div></div>
+      </div>
+      <canvas id="chartCategorias" height="200"></canvas>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(400px,100%),1fr));gap:var(--space-6)">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Últimas ventas</div>
+        <button class="btn btn-ghost btn-sm" onclick="navigate('ventas',document.querySelector('[data-page=ventas]'))">Ver todas</button>
+      </div>
+      ${tableUltimasVentas()}
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Cartera por cobrar</div>
+        <button class="btn btn-ghost btn-sm" onclick="navigate('cartera',document.querySelector('[data-page=cartera]'))">Ver todas</button>
+      </div>
+      ${tableCartera()}
+    </div>
+  </div>`;
+
+  setTimeout(()=>{
+    buildChartVentasGastos();
+    buildChartCategorias(ventas);
+  },50);
+}
+
+function labelPeriodo(){
+  const p=document.getElementById('filterPeriod')?.value||'month';
+  return {today:'hoy',week:'esta semana',month:'este mes',year:'este año',custom:''}[p]||'';
+}
+
+function tableUltimasVentas(){
+  const ultimas=DB.ventas.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha)).slice(0,5);
+  if(!ultimas.length) return '<div class="empty-state" style="padding:var(--space-8)"><p>Sin ventas registradas</p></div>';
+  return `<div class="table-wrap"><table class="data-table"><thead><tr><th>Fecha</th><th>Cliente</th><th>Cat.</th><th class="num">Total</th><th>Estado</th></tr></thead><tbody>
+  ${ultimas.map(v=>`<tr><td>${v.fecha}</td><td>${v.clienteNombre}</td><td><span class="badge badge-neutral">${v.cat}</span></td><td class="num">${fmt(v.total)}</td><td>${badgeEstado(v.estado)}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+function tableCartera(){
+  const pendientes=DB.ventas.filter(v=>v.saldo>0).slice().sort((a,b)=>a.fecha.localeCompare(b.fecha)).slice(0,5);
+  if(!pendientes.length) return '<div class="empty-state" style="padding:var(--space-8)"><i data-lucide="check-circle"></i><p style="margin:0">Sin cartera pendiente 🎉</p></div>';
+  return `<div class="table-wrap"><table class="data-table"><thead><tr><th>Cliente</th><th>Fecha</th><th class="num">Saldo</th></tr></thead><tbody>
+  ${pendientes.map(v=>`<tr><td>${v.clienteNombre}</td><td>${v.fecha}</td><td class="num" style="color:var(--color-warning);font-weight:700">${fmt(v.saldo)}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+function badgeEstado(e){
+  const map={pagado:'badge-green',fiado:'badge-yellow',parcial:'badge-yellow'};
+  const label={pagado:'Pagado',fiado:'Fiado',parcial:'Parcial'};
+  return `<span class="badge ${map[e]||'badge-neutral'}">${label[e]||e}</span>`;
+}
+
+function buildChartVentasGastos(){
+  const ctx=document.getElementById('chartVentasGastos');
+  if(!ctx) return;
+  const now=new Date();
+  const meses=[];const labMeses=[];
+  for(let i=5;i>=0;i--){const d=new Date(now);d.setMonth(d.getMonth()-i);meses.push({m:d.getMonth(),y:d.getFullYear()});labMeses.push(d.toLocaleDateString('es-CO',{month:'short',year:'2-digit'}));}
+  const dV=meses.map(({m,y})=>DB.ventas.filter(v=>{const d=dateOf(v.fecha);return d.getMonth()===m&&d.getFullYear()===y}).reduce((a,v)=>a+v.total,0));
+  const dG=meses.map(({m,y})=>DB.gastos.filter(g=>{const d=dateOf(g.fecha);return d.getMonth()===m&&d.getFullYear()===y}).reduce((a,g)=>a+g.monto,0));
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  const gridColor=isDark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)';
+  const textColor=isDark?'#7a7a6e':'#6b6960';
+  new Chart(ctx,{type:'bar',data:{labels:labMeses,datasets:[{label:'Ventas',data:dV,backgroundColor:'rgba(26,74,46,0.8)',borderRadius:4},{label:'Gastos',data:dG,backgroundColor:'rgba(184,135,10,0.6)',borderRadius:4}]},options:{responsive:true,plugins:{legend:{labels:{color:textColor,font:{size:12}}}},scales:{x:{grid:{color:gridColor},ticks:{color:textColor}},y:{grid:{color:gridColor},ticks:{color:textColor,callback:v=>fmt(v)}}}}});
+}
+
+function buildChartCategorias(ventas){
+  const ctx=document.getElementById('chartCategorias');
+  if(!ctx) return;
+  const cats=['C','B','A','AA','AAA','JUMBO'];
+  const data=cats.map(c=>ventas.filter(v=>v.cat===c).reduce((a,v)=>a+v.total,0));
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  const textColor=isDark?'#7a7a6e':'#6b6960';
+  new Chart(ctx,{type:'doughnut',data:{labels:cats,datasets:[{data,backgroundColor:['#4a7c59','#1a4a2e','#b8870a','#2e6b1a','#9a5e0a','#1a4a6e'],borderWidth:0}]},options:{responsive:true,plugins:{legend:{labels:{color:textColor,font:{size:12}}}}}});
+}
+
+// =====================================================
+// VENTAS
+// =====================================================
+function renderVentas(mc){
+  const ventas=filterByPeriod(DB.ventas,'fecha').slice().sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  mc.innerHTML=`
+  <div class="section-header">
+    <div class="section-title">Ventas registradas <small>${ventas.length} resultados</small></div>
+    <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;align-items:center">
+      <div class="search-wrap"><i data-lucide="search"></i><input class="search-input" id="searchVentas" placeholder="Buscar cliente o categoría…" oninput="filtrarTablaVentas()"></div>
+      <button class="btn btn-primary" onclick="abrirFormVenta()"><i data-lucide="plus" style="width:16px;height:16px"></i> Nueva venta</button>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table class="data-table" id="tablaVentas">
+      <thead><tr><th>Fecha</th><th>Cliente</th><th>Tipo</th><th>Cat.</th><th>Presentación</th><th class="num">Cant.</th><th class="num">P/U</th><th class="num">Total</th><th class="num">Abono</th><th class="num">Saldo</th><th>Método</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody id="tbodyVentas">${rowsVentas(ventas)}</tbody>
+    </table>
+  </div>`;
+}
+
+function rowsVentas(ventas){
+  if(!ventas.length) return `<tr><td colspan="13"><div class="empty-state"><i data-lucide="shopping-cart"></i><h3>Sin ventas</h3><p>Registra tu primera venta</p><button class="btn btn-primary" onclick="abrirFormVenta()">Nueva venta</button></div></td></tr>`;
+  return ventas.map(v=>`<tr>
+    <td>${v.fecha}</td>
+    <td><strong>${v.clienteNombre}</strong></td>
+    <td><span class="badge ${v.tipo==='mayorista'?'badge-blue':'badge-neutral'}">${v.tipo}</span></td>
+    <td><span class="badge badge-neutral">${v.cat}</span></td>
+    <td>${v.presentacion}</td>
+    <td class="num">${fmtN(v.cantidad)}</td>
+    <td class="num">${fmt(v.precioUnitario)}</td>
+    <td class="num"><strong>${fmt(v.total)}</strong></td>
+    <td class="num">${fmt(v.abono)}</td>
+    <td class="num" style="color:${v.saldo>0?'var(--color-warning)':'var(--color-success)'};font-weight:600">${fmt(v.saldo)}</td>
+    <td>${v.metodoPago}</td>
+    <td>${badgeEstado(v.estado)}</td>
+    <td>
+      <div style="display:flex;gap:var(--space-1)">
+        ${v.saldo>0?`<button class="btn btn-ghost btn-sm btn-icon" onclick="abonarVenta(${v.id})" title="Registrar abono" aria-label="Abono"><i data-lucide="dollar-sign" style="width:14px;height:14px"></i></button>`:''}
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="eliminarVenta(${v.id})" title="Eliminar" aria-label="Eliminar"><i data-lucide="trash-2" style="width:14px;height:14px"></i></button>
+      </div>
+    </td>
+  </tr>`).join('');
+}
+
+function filtrarTablaVentas(){
+  const q=document.getElementById('searchVentas')?.value.toLowerCase()||'';
+  const ventas=filterByPeriod(DB.ventas,'fecha').filter(v=>v.clienteNombre.toLowerCase().includes(q)||v.cat.toLowerCase().includes(q)).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  const tbody=document.getElementById('tbodyVentas');
+  if(tbody) tbody.innerHTML=rowsVentas(ventas);
+  lucide.createIcons();
+}
+
+function abrirFormVenta(venta=null){
+  const clienteOpts=DB.clientes.map(c=>`<option value="${c.id}">${c.nombre}</option>`).join('');
+  const prodOpts=DB.productos.filter(p=>p.activo).map(p=>`<option value="${p.id}">${p.cat} — ${p.nombre}</option>`).join('');
+  document.getElementById('modalTitle').textContent='Nueva venta';
+  document.getElementById('modalBody').innerHTML=`
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label" for="vFecha">Fecha <span>*</span></label>
+      <input class="form-input" type="date" id="vFecha" value="${today()}" required>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="vCliente">Cliente <span>*</span></label>
+      <select class="form-select" id="vCliente" required><option value="">Seleccionar…</option>${clienteOpts}</select>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label" for="vTipo">Tipo venta <span>*</span></label>
+      <select class="form-select" id="vTipo" onchange="calcularVenta()">
+        <option value="mayorista">Mayorista (≥5 cubetas)</option>
+        <option value="detal">Detal</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="vProd">Categoría <span>*</span></label>
+      <select class="form-select" id="vProd" onchange="calcularVenta()">${prodOpts}</select>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label" for="vPres">Presentación <span>*</span></label>
+      <select class="form-select" id="vPres" onchange="calcularVenta()">
+        <option value="cubeta">Cubeta (30 und)</option>
+        <option value="huevo">Por huevo</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="vCant">Cantidad <span>*</span></label>
+      <input class="form-input" type="number" id="vCant" min="1" value="1" oninput="calcularVenta()">
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label" for="vPrecioU">Precio unitario (COP)</label>
+      <input class="form-input" type="number" id="vPrecioU" oninput="calcularVentaManual()" placeholder="Auto">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Total calculado</label>
+      <div class="form-input" id="vTotal" style="background:var(--color-surface-offset);font-weight:700;color:var(--color-primary)">$0</div>
+    </div>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label" for="vMetodo">Método de pago</label>
+      <select class="form-select" id="vMetodo">
+        <option>efectivo</option><option>transferencia</option><option>nequi</option><option>daviplata</option><option>otro</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="vEstado">Estado pago</label>
+      <select class="form-select" id="vEstado" onchange="toggleAbono()">
+        <option value="pagado">Pagado completo</option>
+        <option value="parcial">Abono parcial</option>
+        <option value="fiado">Fiado (sin abono)</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-group" id="abonoGrp" style="display:none">
+    <label class="form-label" for="vAbono">Abono inicial (COP)</label>
+    <input class="form-input" type="number" id="vAbono" min="0" value="0" oninput="calcularVenta()">
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="vNotas">Observaciones</label>
+    <textarea class="form-textarea" id="vNotas" placeholder="Opcional…"></textarea>
+  </div>`;
+  document.getElementById('modalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="guardarVenta()"><i data-lucide="save" style="width:14px;height:14px"></i> Guardar venta</button>`;
+  openModal();
+  calcularVenta();
+}
+
+function calcularVenta(){
+  const prodId=parseInt(document.getElementById('vProd')?.value);
+  const tipo=document.getElementById('vTipo')?.value;
+  const pres=document.getElementById('vPres')?.value;
+  const cant=parseFloat(document.getElementById('vCant')?.value)||0;
+  const prod=DB.productos.find(p=>p.id===prodId);
+  if(!prod) return;
+  let pu=pres==='cubeta'?(tipo==='mayorista'?prod.mayoristaCubeta:prod.detalCubeta):(tipo==='mayorista'?prod.mayoristaPorHuevo:prod.detalPorHuevo);
+  document.getElementById('vPrecioU').value=pu;
+  const total=pu*cant;
+  document.getElementById('vTotal').textContent=fmt(total);
+}
+function calcularVentaManual(){
+  const pu=parseFloat(document.getElementById('vPrecioU')?.value)||0;
+  const cant=parseFloat(document.getElementById('vCant')?.value)||0;
+  document.getElementById('vTotal').textContent=fmt(pu*cant);
+}
+function toggleAbono(){
+  const estado=document.getElementById('vEstado')?.value;
+  const grp=document.getElementById('abonoGrp');
+  if(grp) grp.style.display=estado==='parcial'?'block':'none';
+}
+
+function guardarVenta(){
+  const fecha=document.getElementById('vFecha')?.value;
+  const clienteId=parseInt(document.getElementById('vCliente')?.value);
+  const tipo=document.getElementById('vTipo')?.value;
+  const prodId=parseInt(document.getElementById('vProd')?.value);
+  const pres=document.getElementById('vPres')?.value;
+  const cant=parseFloat(document.getElementById('vCant')?.value)||0;
+  const pu=parseFloat(document.getElementById('vPrecioU')?.value)||0;
+  const metodo=document.getElementById('vMetodo')?.value;
+  const estado=document.getElementById('vEstado')?.value;
+  const abonoInput=parseFloat(document.getElementById('vAbono')?.value)||0;
+  const notas=document.getElementById('vNotas')?.value||'';
+  if(!fecha||!clienteId||!prodId||cant<=0||pu<=0){showToast('Completa todos los campos requeridos','error');return;}
+  const cliente=DB.clientes.find(c=>c.id===clienteId);
+  const prod=DB.productos.find(p=>p.id===prodId);
+  const total=pu*cant;
+  const abono=estado==='pagado'?total:estado==='fiado'?0:abonoInput;
+  const saldo=total-abono;
+  DB.ventas.push({id:DB.nextVentaId++,fecha,clienteId,clienteNombre:cliente.nombre,cat:prod.cat,tipo,presentacion:pres,cantidad:cant,precioUnitario:pu,total,abono,saldo,metodoPago:metodo,estado,notas});
+  if(saldo>0) cliente.saldo=(cliente.saldo||0)+saldo;
+  saveDB();
+  closeModal();
+  showToast('Venta registrada correctamente','success');
+  renderPage('ventas');
+}
+
+function abonarVenta(id){
+  const v=DB.ventas.find(x=>x.id===id);if(!v) return;
+  document.getElementById('modalTitle').textContent='Registrar abono';
+  document.getElementById('modalBody').innerHTML=`
+  <p style="margin-bottom:var(--space-4)">Cliente: <strong>${v.clienteNombre}</strong><br>Saldo pendiente: <strong style="color:var(--color-warning)">${fmt(v.saldo)}</strong></p>
+  <div class="form-group"><label class="form-label">Abono (COP) <span>*</span></label><input class="form-input" type="number" id="abonoMonto" min="1" max="${v.saldo}" value="${v.saldo}" placeholder="Monto a abonar"></div>
+  <div class="form-group"><label class="form-label">Método</label><select class="form-select" id="abonoMetodo"><option>efectivo</option><option>transferencia</option><option>nequi</option><option>daviplata</option></select></div>`;
+  document.getElementById('modalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="confirmarAbono(${id})">Confirmar abono</button>`;
+  openModal();
+}
+function confirmarAbono(id){
+  const v=DB.ventas.find(x=>x.id===id);if(!v) return;
+  const monto=Math.min(parseFloat(document.getElementById('abonoMonto')?.value)||0,v.saldo);
+  if(monto<=0){showToast('Ingresa un monto válido','error');return;}
+  v.abono+=monto;v.saldo-=monto;
+  if(v.saldo<=0){v.saldo=0;v.estado='pagado';}else{v.estado='parcial';}
+  const c=DB.clientes.find(x=>x.id===v.clienteId);
+  if(c) c.saldo=Math.max(0,(c.saldo||0)-monto);
+  saveDB();closeModal();showToast('Abono registrado','success');renderPage('cartera');
+}
+
+function eliminarVenta(id){
+  if(!confirm('¿Eliminar esta venta?')) return;
+  DB.ventas=DB.ventas.filter(v=>v.id!==id);
+  saveDB();
+  showToast('Venta eliminada','success');renderPage('ventas');
+}
+
+// =====================================================
+// GASTOS
+// =====================================================
+function renderGastos(mc){
+  const gastos=filterByPeriod(DB.gastos,'fecha').slice().sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  const total=gastos.reduce((a,g)=>a+g.monto,0);
+  mc.innerHTML=`
+  <div class="section-header">
+    <div class="section-title">Gastos registrados <small>${gastos.length} registros · Total: ${fmt(total)}</small></div>
+    <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;align-items:center">
+      <div class="search-wrap"><i data-lucide="search"></i><input class="search-input" id="searchGastos" placeholder="Buscar categoría o descripción…" oninput="filtrarTablaGastos()"></div>
+      <button class="btn btn-primary" onclick="abrirFormGasto()"><i data-lucide="plus" style="width:16px;height:16px"></i> Nuevo gasto</button>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table class="data-table" id="tablaGastos">
+      <thead><tr><th>Fecha</th><th>Categoría</th><th>Descripción</th><th class="num">Monto</th><th>Método</th><th>Responsable</th><th>Acciones</th></tr></thead>
+      <tbody id="tbodyGastos">${rowsGastos(gastos)}</tbody>
+    </table>
+  </div>`;
+}
+
+function rowsGastos(gastos){
+  if(!gastos.length) return `<tr><td colspan="7"><div class="empty-state"><i data-lucide="trending-down"></i><h3>Sin gastos</h3><p>Registra tu primer gasto</p><button class="btn btn-primary" onclick="abrirFormGasto()">Nuevo gasto</button></div></td></tr>`;
+  return gastos.map(g=>`<tr>
+    <td>${g.fecha}</td>
+    <td><span class="badge badge-neutral">${g.categoria}</span></td>
+    <td>${g.descripcion}</td>
+    <td class="num" style="font-weight:700;color:var(--color-error)">${fmt(g.monto)}</td>
+    <td>${g.metodoPago}</td>
+    <td>${g.responsable}</td>
+    <td><button class="btn btn-ghost btn-sm btn-icon" onclick="eliminarGasto(${g.id})" aria-label="Eliminar"><i data-lucide="trash-2" style="width:14px;height:14px"></i></button></td>
+  </tr>`).join('');
+}
+function filtrarTablaGastos(){
+  const q=document.getElementById('searchGastos')?.value.toLowerCase()||'';
+  const gastos=filterByPeriod(DB.gastos,'fecha').filter(g=>g.categoria.toLowerCase().includes(q)||g.descripcion.toLowerCase().includes(q)).sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  const tbody=document.getElementById('tbodyGastos');
+  if(tbody) tbody.innerHTML=rowsGastos(gastos);
+  lucide.createIcons();
+}
+function abrirFormGasto(){
+  const cats=['Alimentación gallinas','Transporte','Empaque','Servicios','Mano de obra','Medicamentos','Mantenimiento','Papelería','Imprevistos','Otros'];
+  document.getElementById('modalTitle').textContent='Registrar gasto';
+  document.getElementById('modalBody').innerHTML=`
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">Fecha <span>*</span></label><input class="form-input" type="date" id="gFecha" value="${today()}" required></div>
+    <div class="form-group"><label class="form-label">Categoría <span>*</span></label><select class="form-select" id="gCat">${cats.map(c=>`<option>${c}</option>`).join('')}</select></div>
+  </div>
+  <div class="form-group"><label class="form-label">Descripción <span>*</span></label><input class="form-input" type="text" id="gDesc" placeholder="Describe el gasto…" required></div>
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">Monto (COP) <span>*</span></label><input class="form-input" type="number" id="gMonto" min="1" required></div>
+    <div class="form-group"><label class="form-label">Método</label><select class="form-select" id="gMetodo"><option>efectivo</option><option>transferencia</option><option>nequi</option><option>daviplata</option><option>otro</option></select></div>
+  </div>
+  <div class="form-group"><label class="form-label">Responsable</label><input class="form-input" type="text" id="gResp" value="Luis Parra"></div>
+  <div class="form-group"><label class="form-label">Notas</label><textarea class="form-textarea" id="gNotas"></textarea></div>`;
+  document.getElementById('modalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="guardarGasto()"><i data-lucide="save" style="width:14px;height:14px"></i> Guardar</button>`;
+  openModal();
+}
+function guardarGasto(){
+  const fecha=document.getElementById('gFecha')?.value;
+  const categoria=document.getElementById('gCat')?.value;
+  const descripcion=document.getElementById('gDesc')?.value;
+  const monto=parseFloat(document.getElementById('gMonto')?.value)||0;
+  const metodoPago=document.getElementById('gMetodo')?.value;
+  const responsable=document.getElementById('gResp')?.value||'';
+  const notas=document.getElementById('gNotas')?.value||'';
+  if(!fecha||!descripcion||monto<=0){showToast('Completa todos los campos requeridos','error');return;}
+  DB.gastos.push({id:DB.nextGastoId++,fecha,categoria,descripcion,monto,metodoPago,responsable,notas});
+  saveDB();closeModal();showToast('Gasto registrado','success');renderPage('gastos');
+}
+function eliminarGasto(id){
+  if(!confirm('¿Eliminar este gasto?')) return;
+  DB.gastos=DB.gastos.filter(g=>g.id!==id);
+  saveDB();
+  showToast('Gasto eliminado','success');renderPage('gastos');
+}
+
+// =====================================================
+// CARTERA
+// =====================================================
+function renderCartera(mc){
+  const pendientes=DB.ventas.filter(v=>v.saldo>0).slice().sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  const total=pendientes.reduce((a,v)=>a+v.saldo,0);
+  mc.innerHTML=`
+  <div class="kpi-grid" style="grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr))">
+    <div class="kpi-card gold">
+      <div class="kpi-label">Total por cobrar</div>
+      <div class="kpi-value">${fmt(total)}</div>
+      <div class="kpi-meta">${pendientes.length} cuentas pendientes</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Clientes con deuda</div>
+      <div class="kpi-value">${new Set(pendientes.map(v=>v.clienteId)).size}</div>
+      <div class="kpi-meta">de ${DB.clientes.length} clientes</div>
+    </div>
+  </div>
+  <div class="section-header">
+    <div class="section-title">Cuentas por cobrar</div>
+    <div class="search-wrap"><i data-lucide="search"></i><input class="search-input" id="searchCartera" placeholder="Buscar cliente…" oninput="filtrarCartera()"></div>
+  </div>
+  <div class="table-wrap">
+    <table class="data-table" id="tablaCartera">
+      <thead><tr><th>Fecha venta</th><th>Cliente</th><th>Cat.</th><th class="num">Total venta</th><th class="num">Abonado</th><th class="num">Saldo</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody id="tbodyCartera">${rowsCarteraFull(pendientes)}</tbody>
+    </table>
+  </div>`;
+}
+function rowsCarteraFull(pendientes){
+  if(!pendientes.length) return `<tr><td colspan="8"><div class="empty-state"><i data-lucide="check-circle"></i><h3>Sin cartera pendiente</h3><p>Todas las cuentas están al día 🎉</p></div></td></tr>`;
+  return pendientes.map(v=>`<tr>
+    <td>${v.fecha}</td><td><strong>${v.clienteNombre}</strong></td>
+    <td><span class="badge badge-neutral">${v.cat}</span></td>
+    <td class="num">${fmt(v.total)}</td>
+    <td class="num">${fmt(v.abono)}</td>
+    <td class="num" style="color:var(--color-warning);font-weight:700">${fmt(v.saldo)}</td>
+    <td>${badgeEstado(v.estado)}</td>
+    <td><button class="btn btn-primary btn-sm" onclick="abonarVenta(${v.id})"><i data-lucide="dollar-sign" style="width:12px;height:12px"></i> Abonar</button></td>
+  </tr>`).join('');
+}
+function filtrarCartera(){
+  const q=document.getElementById('searchCartera')?.value.toLowerCase()||'';
+  const pendientes=DB.ventas.filter(v=>v.saldo>0&&v.clienteNombre.toLowerCase().includes(q)).sort((a,b)=>a.fecha.localeCompare(b.fecha));
+  const tbody=document.getElementById('tbodyCartera');
+  if(tbody) tbody.innerHTML=rowsCarteraFull(pendientes);
+  lucide.createIcons();
+}
+
+// =====================================================
+// CLIENTES
+// =====================================================
+function renderClientes(mc){
+  mc.innerHTML=`
+  <div class="section-header">
+    <div class="section-title">Clientes <small>${DB.clientes.length} registrados</small></div>
+    <div style="display:flex;gap:var(--space-3);align-items:center">
+      <div class="search-wrap"><i data-lucide="search"></i><input class="search-input" id="searchClientes" placeholder="Buscar…" oninput="filtrarClientes()"></div>
+      <button class="btn btn-primary" onclick="abrirFormCliente()"><i data-lucide="user-plus" style="width:16px;height:16px"></i> Nuevo cliente</button>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table class="data-table" id="tablaClientes">
+      <thead><tr><th>Nombre</th><th>Teléfono</th><th>Zona</th><th>Tipo</th><th class="num">Saldo deuda</th><th>Notas</th><th>Acciones</th></tr></thead>
+      <tbody id="tbodyClientes">${rowsClientes(DB.clientes)}</tbody>
+    </table>
+  </div>`;
+}
+function rowsClientes(clientes){
+  if(!clientes.length) return `<tr><td colspan="7"><div class="empty-state"><i data-lucide="users"></i><h3>Sin clientes</h3><p>Agrega tu primer cliente</p><button class="btn btn-primary" onclick="abrirFormCliente()">Nuevo cliente</button></div></td></tr>`;
+  return clientes.map(c=>`<tr>
+    <td><strong>${c.nombre}</strong></td>
+    <td>${c.telefono}</td>
+    <td>${c.zona}</td>
+    <td><span class="badge ${c.tipo==='mayorista'?'badge-blue':'badge-neutral'}">${c.tipo}</span></td>
+    <td class="num" style="color:${(c.saldo||0)>0?'var(--color-warning)':'var(--color-success)'};font-weight:600">${fmt(c.saldo||0)}</td>
+    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.notas||'—'}</td>
+    <td>
+      <div style="display:flex;gap:var(--space-1)">
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="editarCliente(${c.id})" aria-label="Editar"><i data-lucide="edit-2" style="width:14px;height:14px"></i></button>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="eliminarCliente(${c.id})" aria-label="Eliminar"><i data-lucide="trash-2" style="width:14px;height:14px"></i></button>
+      </div>
+    </td>
+  </tr>`).join('');
+}
+function filtrarClientes(){
+  const q=document.getElementById('searchClientes')?.value.toLowerCase()||'';
+  const lista=DB.clientes.filter(c=>c.nombre.toLowerCase().includes(q)||c.zona.toLowerCase().includes(q));
+  const tbody=document.getElementById('tbodyClientes');
+  if(tbody) tbody.innerHTML=rowsClientes(lista);
+  lucide.createIcons();
+}
+function abrirFormCliente(cliente=null){
+  document.getElementById('modalTitle').textContent=cliente?'Editar cliente':'Nuevo cliente';
+  document.getElementById('modalBody').innerHTML=`
+  <div class="form-group"><label class="form-label">Nombre <span>*</span></label><input class="form-input" type="text" id="cNombre" value="${cliente?.nombre||''}" required></div>
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">Teléfono</label><input class="form-input" type="tel" id="cTel" value="${cliente?.telefono||''}"></div>
+    <div class="form-group"><label class="form-label">Zona / Barrio</label><input class="form-input" type="text" id="cZona" value="${cliente?.zona||''}"></div>
+  </div>
+  <div class="form-group"><label class="form-label">Tipo de cliente</label><select class="form-select" id="cTipo"><option value="mayorista" ${cliente?.tipo==='mayorista'?'selected':''}>Mayorista</option><option value="detal" ${cliente?.tipo==='detal'?'selected':''}>Detal</option></select></div>
+  <div class="form-group"><label class="form-label">Notas</label><textarea class="form-textarea" id="cNotas">${cliente?.notas||''}</textarea></div>`;
+  document.getElementById('modalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="guardarCliente(${cliente?.id||'null'})">Guardar</button>`;
+  openModal();
+}
+function editarCliente(id){abrirFormCliente(DB.clientes.find(c=>c.id===id));}
+function guardarCliente(id){
+  const nombre=document.getElementById('cNombre')?.value.trim();
+  if(!nombre){showToast('El nombre es requerido','error');return;}
+  const data={nombre,telefono:document.getElementById('cTel')?.value||'',zona:document.getElementById('cZona')?.value||'',tipo:document.getElementById('cTipo')?.value,notas:document.getElementById('cNotas')?.value||''};
+  if(id&&id!=='null'){Object.assign(DB.clientes.find(c=>c.id===id),data);}
+  else{DB.clientes.push({id:DB.nextClienteId++,saldo:0,...data});}
+  saveDB();closeModal();showToast('Cliente guardado','success');renderPage('clientes');
+}
+function eliminarCliente(id){
+  if(!confirm('¿Eliminar este cliente?')) return;
+  DB.clientes=DB.clientes.filter(c=>c.id!==id);
+  saveDB();
+  showToast('Cliente eliminado','success');renderPage('clientes');
+}
+
+// =====================================================
+// PRODUCTOS
+// =====================================================
+function renderProductos(mc){
+  mc.innerHTML=`
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('lista',this)">Lista de precios</button>
+    <button class="tab-btn" onclick="switchTab('editar',this)">Editar precios</button>
+  </div>
+  <div class="tab-panel active" id="tab-lista">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Lista de precios vigente</div>
+        <span class="badge badge-green">Nidal Trinidad</span>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Categoría</th><th class="num">Mayorista/Huevo</th><th class="num">Mayorista/Cubeta</th><th class="num">Detal/Huevo</th><th class="num">Detal/Cubeta</th><th>Estado</th></tr></thead>
+          <tbody>${DB.productos.map(p=>`<tr>
+            <td><strong>${p.cat}</strong> <span style="color:var(--color-text-muted);font-size:var(--text-xs)">${p.nombre}</span></td>
+            <td class="num">${fmt(p.mayoristaPorHuevo)}</td>
+            <td class="num"><strong>${fmt(p.mayoristaCubeta)}</strong></td>
+            <td class="num">${fmt(p.detalPorHuevo)}</td>
+            <td class="num"><strong>${fmt(p.detalCubeta)}</strong></td>
+            <td><span class="badge ${p.activo?'badge-green':'badge-red'}">${p.activo?'Activo':'Inactivo'}</span></td>
+          </tr>`).join('')}</tbody>
+        </table>
+      </div>
+      <p class="form-hint" style="margin-top:var(--space-4)">Mayorista aplica desde 5 cubetas. Cubeta = 30 unidades. Precios en COP.</p>
+    </div>
+  </div>
+  <div class="tab-panel" id="tab-editar">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Editar precios</div></div>
+      ${DB.productos.map(p=>`
+      <div style="border:1px solid var(--color-divider);border-radius:var(--radius-lg);padding:var(--space-4);margin-bottom:var(--space-4)">
+        <div style="font-weight:700;margin-bottom:var(--space-3)">${p.cat} — ${p.nombre}</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Mayor/Huevo</label><input class="form-input" type="number" id="p${p.id}_mh" value="${p.mayoristaPorHuevo}"></div>
+          <div class="form-group"><label class="form-label">Mayor/Cubeta</label><input class="form-input" type="number" id="p${p.id}_mc" value="${p.mayoristaCubeta}"></div>
+          <div class="form-group"><label class="form-label">Detal/Huevo</label><input class="form-input" type="number" id="p${p.id}_dh" value="${p.detalPorHuevo}"></div>
+          <div class="form-group"><label class="form-label">Detal/Cubeta</label><input class="form-input" type="number" id="p${p.id}_dc" value="${p.detalCubeta}"></div>
+        </div>
+      </div>`).join('')}
+      <button class="btn btn-primary" onclick="guardarPrecios()"><i data-lucide="save" style="width:14px;height:14px"></i> Guardar cambios</button>
+    </div>
+  </div>`;
+}
+function guardarPrecios(){
+  DB.productos.forEach(p=>{
+    const v=(id)=>parseFloat(document.getElementById(id)?.value)||0;
+    p.mayoristaPorHuevo=v(`p${p.id}_mh`);p.mayoristaCubeta=v(`p${p.id}_mc`);
+    p.detalPorHuevo=v(`p${p.id}_dh`);p.detalCubeta=v(`p${p.id}_dc`);
+  });
+  saveDB();showToast('Precios actualizados','success');renderPage('productos');
+}
+
+// =====================================================
+// REPORTES
+// =====================================================
+function renderReportes(mc){
+  const ventas=filterByPeriod(DB.ventas,'fecha');
+  const gastos=filterByPeriod(DB.gastos,'fecha');
+  const totalV=ventas.reduce((a,v)=>a+v.total,0);
+  const totalG=gastos.reduce((a,g)=>a+g.monto,0);
+  const utilidad=totalV-totalG;
+
+  // By category
+  const porCat={};DB.productos.forEach(p=>{porCat[p.cat]={ventas:0,total:0}});
+  ventas.forEach(v=>{if(porCat[v.cat]){porCat[v.cat].ventas++;porCat[v.cat].total+=v.total;}});
+
+  // By client
+  const porCliente={};
+  ventas.forEach(v=>{if(!porCliente[v.clienteNombre])porCliente[v.clienteNombre]={ventas:0,total:0};porCliente[v.clienteNombre].ventas++;porCliente[v.clienteNombre].total+=v.total;});
+  const topClientes=Object.entries(porCliente).sort((a,b)=>b[1].total-a[1].total).slice(0,5);
+
+  // By gastos cat
+  const porGCat={};
+  gastos.forEach(g=>{if(!porGCat[g.categoria])porGCat[g.categoria]=0;porGCat[g.categoria]+=g.monto;});
+  const topGastos=Object.entries(porGCat).sort((a,b)=>b[1]-a[1]);
+
+  const periodLabel = labelPeriodo();
+  mc.innerHTML=`
+  <div style="display:none" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 160" height="40" style="max-width:260px;display:block;">
+  <rect x="24" y="4" width="7" height="22" rx="1.5" fill="#0f2e1a"/>
+  <rect x="41" y="4" width="7" height="22" rx="1.5" fill="#0f2e1a"/>
+  <polygon points="31,4 38,4 48,26 41,26" fill="#b8860b"/>
+  <rect x="27" y="24" width="21" height="3" rx="1.5" fill="#0f2e1a" opacity=".2"/>
+  <path d="M36 28 L62 37 L62 96 Q62 128 36 138 Q10 128 10 96 L10 37 Z" fill="#0f2e1a"/>
+  <path d="M36 33 L58 41 L58 95 Q58 122 36 131 Q14 122 14 95 L14 41 Z" fill="none" stroke="#b8860b" stroke-width=".7" opacity=".30"/>
+  <path d="M14 102 Q36 114 58 102" fill="none" stroke="#b8860b" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M18 108 Q36 118 54 108" fill="none" stroke="#b8860b" stroke-width="1.1" stroke-linecap="round" opacity=".36"/>
+  <ellipse cx="25" cy="89" rx="7" ry="9" fill="#f6f1e8" stroke="#b8860b" stroke-width="1.2"/>
+  <ellipse cx="36" cy="85" rx="9" ry="11.5" fill="#b8860b" stroke="#0f2e1a" stroke-width="1.4"/>
+  <ellipse cx="47" cy="89" rx="7" ry="9" fill="#f6f1e8" stroke="#b8860b" stroke-width="1.2"/>
+  <text x="82" y="62" font-family="Barlow Condensed, sans-serif" font-weight="900" font-size="46" fill="#0f2e1a" letter-spacing="3">NIDAL</text>
+  <text x="82" y="85" font-family="Barlow Condensed, sans-serif" font-weight="600" font-size="18" fill="#b8860b" letter-spacing="6">TRINIDAD</text>
+  <line x1="82" y1="104" x2="430" y2="104" stroke="#b8860b" stroke-width=".8" opacity=".45"/>
+  <text x="82" y="120" font-family="Barlow Condensed, sans-serif" font-weight="400" font-size="14" fill="#5a5a5a" letter-spacing="2" font-style="italic">El huevo que se distingue</text>
+</svg></div>
+  <div class="kpi-grid">
+    <div class="kpi-card primary"><div class="kpi-label">Total ventas</div><div class="kpi-value">${fmt(totalV)}</div><div class="kpi-meta">${ventas.length} transacciones</div></div>
+    <div class="kpi-card"><div class="kpi-label">Total gastos</div><div class="kpi-value" style="color:var(--color-error)">${fmt(totalG)}</div><div class="kpi-meta">${gastos.length} registros</div></div>
+    <div class="kpi-card gold"><div class="kpi-label">Utilidad bruta</div><div class="kpi-value" style="color:${utilidad>=0?'var(--color-gold)':'var(--color-error)'}">${fmt(utilidad)}</div><div class="kpi-meta">Margen: ${totalV>0?((utilidad/totalV)*100).toFixed(1)+'%':'—'}</div></div>
+    <div class="kpi-card"><div class="kpi-label">Cartera pendiente</div><div class="kpi-value">${fmt(DB.ventas.filter(v=>v.saldo>0).reduce((a,v)=>a+v.saldo,0))}</div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(360px,100%),1fr));gap:var(--space-6);margin-bottom:var(--space-8)">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Ventas por categoría</div></div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>Categoría</th><th class="num">Transacciones</th><th class="num">Total</th><th class="num">% del total</th></tr></thead>
+      <tbody>${Object.entries(porCat).map(([cat,d])=>`<tr><td><strong>${cat}</strong></td><td class="num">${d.ventas}</td><td class="num">${fmt(d.total)}</td><td class="num">${totalV>0?((d.total/totalV)*100).toFixed(1)+'%':'—'}</td></tr>`).join('')}</tbody></table></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Top clientes</div></div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>Cliente</th><th class="num">Compras</th><th class="num">Total</th></tr></thead>
+      <tbody>${topClientes.map(([n,d])=>`<tr><td><strong>${n}</strong></td><td class="num">${d.ventas}</td><td class="num">${fmt(d.total)}</td></tr>`).join('')}</tbody></table></div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(360px,100%),1fr));gap:var(--space-6)">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Gastos por categoría</div></div>
+      <div class="table-wrap"><table class="data-table"><thead><tr><th>Categoría</th><th class="num">Monto</th><th class="num">% del total</th></tr></thead>
+      <tbody>${topGastos.map(([cat,m])=>`<tr><td>${cat}</td><td class="num" style="color:var(--color-error)">${fmt(m)}</td><td class="num">${totalG>0?((m/totalG)*100).toFixed(1)+'%':'—'}</td></tr>`).join('')}</tbody></table></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Resumen contable</div></div>
+      <div style="display:flex;flex-direction:column;gap:var(--space-3)">
+        ${[['Ingresos brutos',totalV,'var(--color-success)'],['Egresos totales',totalG,'var(--color-error)'],['Utilidad operativa',utilidad,utilidad>=0?'var(--color-gold)':'var(--color-error)'],['Cartera por cobrar',DB.ventas.filter(v=>v.saldo>0).reduce((a,v)=>a+v.saldo,0),'var(--color-warning)']].map(([label,val,color])=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:var(--space-3) 0;border-bottom:1px solid var(--color-divider)">
+          <span style="color:var(--color-text-muted);font-size:var(--text-sm)">${label}</span>
+          <span style="font-weight:700;font-variant-numeric:tabular-nums;color:${color}">${fmt(val)}</span>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>
+  <div style="margin-top:var(--space-6);display:flex;gap:var(--space-3)">
+    <button class="btn btn-secondary" onclick="exportarCSV()"><i data-lucide="download" style="width:14px;height:14px"></i> Exportar ventas CSV</button>
+    <button class="btn btn-secondary" onclick="imprimirReporte()"><i data-lucide="printer" style="width:14px;height:14px"></i> Imprimir reporte</button>
+  </div>`;
+}
+function exportarCSV(){
+  const ventas=filterByPeriod(DB.ventas,'fecha');
+  const header=['Fecha','Cliente','Tipo','Categoría','Presentación','Cantidad','Precio Unit.','Total','Abono','Saldo','Método','Estado','Notas'];
+  const rows=ventas.map(v=>[v.fecha,v.clienteNombre,v.tipo,v.cat,v.presentacion,v.cantidad,v.precioUnitario,v.total,v.abono,v.saldo,v.metodoPago,v.estado,v.notas||'']);
+  const csv=[header,...rows].map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ventas-nidal-trinidad.csv';a.click();
+  showToast('CSV descargado','success');
+}
+function imprimirReporte(){window.print();}
+
+// =====================================================
+// CONFIG
+// =====================================================
+function renderConfig(mc){
+  const syncStatus=_firestoreReady?'Conectado ✓':'Sin conexión ✗';
+  mc.innerHTML=`
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:var(--space-6)">
+  <div class="card">
+    <div class="card-header"><div class="card-title">Configuración del negocio</div></div>
+    <div class="form-group"><label class="form-label">Nombre del negocio</label><input class="form-input" value="Nidal Trinidad"></div>
+    <div class="form-group"><label class="form-label">Responsable</label><input class="form-input" value="Luis Parra"></div>
+    <div class="form-group"><label class="form-label">Ciudad</label><input class="form-input" value="Medellín, Antioquia"></div>
+    <div class="form-group"><label class="form-label">Umbral mayorista (cubetas)</label><input class="form-input" type="number" value="5"></div>
+    <div class="divider"></div>
+    <div style="font-weight:700;font-size:var(--text-base);margin-bottom:var(--space-4)">Apariencia</div>
+    <div class="form-group">
+      <label class="form-label">Tema</label>
+      <select class="form-select" onchange="document.documentElement.setAttribute('data-theme',this.value)">
+        <option value="light">Claro</option>
+        <option value="dark">Oscuro</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" onclick="showToast('Configuración guardada','success')"><i data-lucide="save" style="width:14px;height:14px"></i> Guardar cambios</button>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title">Copia de seguridad</div></div>
+    <div style="background:var(--color-success-highlight);border:1px solid oklch(from var(--color-success) l c h / 0.3);border-radius:var(--radius-lg);padding:var(--space-4);margin-bottom:var(--space-5)">
+      <div style="font-size:var(--text-sm);font-weight:700;color:var(--color-success);margin-bottom:4px">✓ Sincronización en la nube activa</div>
+      <div style="font-size:var(--text-xs);color:var(--color-text-muted)">Tus datos se guardan y sincronizan automáticamente con tus socios en Firebase Firestore cada vez que registras algo.</div>
+      <div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:4px">Estado de conexión: <strong>${syncStatus}</strong></div>
+    </div>
+    <div style="font-weight:700;font-size:var(--text-sm);margin-bottom:4px">Exportar backup</div>
+    <div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-3)">Descarga un archivo .json con todos tus datos. Guárdalo en Google Drive o tu PC. Recomendado: hacerlo mensualmente.</div>
+    <button class="btn btn-primary" style="margin-bottom:var(--space-5)" onclick="exportarDatos()"><i data-lucide="download" style="width:14px;height:14px"></i> Descargar backup .json</button>
+    <div class="divider"></div>
+    <div style="font-weight:700;font-size:var(--text-sm);margin:var(--space-4) 0 4px">Restaurar desde backup</div>
+    <div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-3)">Carga un archivo .json exportado previamente para restaurar tus datos en este u otro navegador/PC.</div>
+    <button class="btn btn-secondary" style="margin-bottom:var(--space-5)" onclick="importarDatos()"><i data-lucide="upload" style="width:14px;height:14px"></i> Cargar backup .json</button>
+    <div class="divider"></div>
+    <div style="font-weight:700;font-size:var(--text-sm);color:var(--color-error);margin:var(--space-4) 0 4px">Zona peligrosa</div>
+    <div style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-3)">Estas acciones afectan la base de datos compartida en la nube y se reflejan de inmediato para los tres socios.</div>
+  </div>
+  </div>`;
+}
+
+// =====================================================
+// TABS
+// =====================================================
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-'+id)?.classList.add('active');
+}
+
+// =====================================================
+// MODAL
+// =====================================================
+function openModal(){
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  lucide.createIcons();
+}
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+// =====================================================
+// TOAST
+// =====================================================
+function showToast(msg,type='success'){
+  const c=document.getElementById('toastContainer');
+  const t=document.createElement('div');
+  t.className=`toast toast-${type}`;
+  t.innerHTML=`<i data-lucide="${type==='success'?'check-circle':'alert-circle'}" style="width:16px;height:16px;flex-shrink:0"></i>${msg}`;
+  c.appendChild(t);lucide.createIcons();
+  setTimeout(()=>t.classList.add('show'),10);
+  setTimeout(()=>{t.classList.remove('show');setTimeout(()=>t.remove(),300);},3000);
+}
+
+// =====================================================
+// THEME TOGGLE
+// =====================================================
+(function(){
+  const t=document.querySelector('[data-theme-toggle]'),r=document.documentElement;
+  let d=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+  r.setAttribute('data-theme',d);
+  if(t) t.addEventListener('click',()=>{
+    d=d==='dark'?'light':'dark';r.setAttribute('data-theme',d);
+    t.innerHTML=d==='dark'?'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>':'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  });
+})();
+
+// =====================================================
+// MOBILE SIDEBAR
+// =====================================================
+document.getElementById('sidebarToggle').addEventListener('click',()=>{
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+});
+document.getElementById('sidebarOverlay').addEventListener('click',()=>{
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+});
+
+// =====================================================
+// INIT
+// =====================================================
+initFirebase();
+lucide.createIcons();
+renderPage('dashboard');
+setTimeout(()=>{
+  if(DB.ventas.length===0 && DB.gastos.length===0){
+    mostrarBienvenida();
+  } else {
+    showToast('Datos sincronizados ✓','success');
+  }
+}, 800);
+</script>
+</body>
+</html>
