@@ -188,6 +188,7 @@ a,button,[role="button"],input,textarea,select{transition:color var(--transition
 .badge-red{background:var(--color-error-highlight);color:var(--color-error)}
 .badge-blue{background:var(--color-info-highlight);color:var(--color-info)}
 .badge-neutral{background:var(--color-surface-offset);color:var(--color-text-muted)}
+.badge-gold-vendedor{background:var(--color-gold-highlight);color:var(--color-gold)}
 
 .form-group{display:flex;flex-direction:column;gap:var(--space-2);margin-bottom:var(--space-4)}
 .form-label{font-size:var(--text-sm);font-weight:600;color:var(--color-text)}
@@ -334,6 +335,9 @@ a,button,[role="button"],input,textarea,select{transition:color var(--transition
     <button class="nav-item" data-page="cartera" onclick="navigate('cartera',this)">
       <i data-lucide="credit-card"></i> Cartera
     </button>
+    <button class="nav-item" data-page="vendedores" onclick="navigate('vendedores',this)">
+      <i data-lucide="user-check"></i> Vendedores
+    </button>
 
     <div class="nav-section-label">Gestión</div>
     <button class="nav-item" data-page="clientes" onclick="navigate('clientes',this)">
@@ -405,6 +409,7 @@ a,button,[role="button"],input,textarea,select{transition:color var(--transition
 // =====================================================
 // DATA STORE (sincronizado en la nube vía Firebase Firestore)
 // =====================================================
+const VENDEDORES = ['Daniela','Luis'];
 const DB = {
   productos: [
     {id:1,cat:'C',nombre:'Huevo C',mayoristaPorHuevo:333,mayoristaCubeta:10000,detalPorHuevo:350,detalCubeta:10500,activo:true},
@@ -585,7 +590,7 @@ function mostrarBienvenida(){
 // NAVIGATION
 // =====================================================
 let currentPage='dashboard';
-const pageTitles={dashboard:'Dashboard',ventas:'Ventas',gastos:'Gastos',cartera:'Cartera',clientes:'Clientes',productos:'Productos y Precios',reportes:'Reportes',config:'Configuración'};
+const pageTitles={dashboard:'Dashboard',ventas:'Ventas',gastos:'Gastos',cartera:'Cartera',vendedores:'Vendedores',clientes:'Clientes',productos:'Productos y Precios',reportes:'Reportes',config:'Configuración'};
 
 function navigate(page, btn){
   currentPage=page;
@@ -602,7 +607,7 @@ function navigate(page, btn){
 function renderPage(page){
   const mc=document.getElementById('mainContent');
   mc.innerHTML='';
-  const pages={dashboard:renderDashboard,ventas:renderVentas,gastos:renderGastos,cartera:renderCartera,clientes:renderClientes,productos:renderProductos,reportes:renderReportes,config:renderConfig};
+  const pages={dashboard:renderDashboard,ventas:renderVentas,gastos:renderGastos,cartera:renderCartera,vendedores:renderVendedores,clientes:renderClientes,productos:renderProductos,reportes:renderReportes,config:renderConfig};
   if(pages[page]) pages[page](mc);
   lucide.createIcons();
 }
@@ -775,17 +780,18 @@ function renderVentas(mc){
   </div>
   <div class="table-wrap">
     <table class="data-table" id="tablaVentas">
-      <thead><tr><th>Fecha</th><th>Cliente</th><th>Tipo</th><th>Cat.</th><th>Presentación</th><th class="num">Cant.</th><th class="num">P/U</th><th class="num">Total</th><th class="num">Abono</th><th class="num">Saldo</th><th>Método</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <thead><tr><th>Fecha</th><th>Cliente</th><th>Vendedor</th><th>Tipo</th><th>Cat.</th><th>Presentación</th><th class="num">Cant.</th><th class="num">P/U</th><th class="num">Total</th><th class="num">Abono</th><th class="num">Saldo</th><th>Método</th><th>Estado</th><th>Acciones</th></tr></thead>
       <tbody id="tbodyVentas">${rowsVentas(ventas)}</tbody>
     </table>
   </div>`;
 }
 
 function rowsVentas(ventas){
-  if(!ventas.length) return `<tr><td colspan="13"><div class="empty-state"><i data-lucide="shopping-cart"></i><h3>Sin ventas</h3><p>Registra tu primera venta</p><button class="btn btn-primary" onclick="abrirFormVenta()">Nueva venta</button></div></td></tr>`;
+  if(!ventas.length) return `<tr><td colspan="14"><div class="empty-state"><i data-lucide="shopping-cart"></i><h3>Sin ventas</h3><p>Registra tu primera venta</p><button class="btn btn-primary" onclick="abrirFormVenta()">Nueva venta</button></div></td></tr>`;
   return ventas.map(v=>`<tr>
     <td>${v.fecha}</td>
     <td><strong>${v.clienteNombre}</strong></td>
+    <td><span class="badge badge-gold-vendedor">${v.vendedor||'Sin asignar'}</span></td>
     <td><span class="badge ${v.tipo==='mayorista'?'badge-blue':'badge-neutral'}">${v.tipo}</span></td>
     <td><span class="badge badge-neutral">${v.cat}</span></td>
     <td>${v.presentacion}</td>
@@ -829,6 +835,10 @@ function abrirFormVenta(venta=null){
     </div>
   </div>
   <div class="form-row">
+    <div class="form-group">
+      <label class="form-label" for="vVendedor">Vendedor <span>*</span></label>
+      <select class="form-select" id="vVendedor" required>${VENDEDORES.map(nom=>`<option value="${nom}">${nom}</option>`).join('')}</select>
+    </div>
     <div class="form-group">
       <label class="form-label" for="vTipo">Tipo venta <span>*</span></label>
       <select class="form-select" id="vTipo" onchange="calcularVenta()">
@@ -919,6 +929,7 @@ function toggleAbono(){
 function guardarVenta(){
   const fecha=document.getElementById('vFecha')?.value;
   const clienteId=parseInt(document.getElementById('vCliente')?.value);
+  const vendedor=document.getElementById('vVendedor')?.value;
   const tipo=document.getElementById('vTipo')?.value;
   const prodId=parseInt(document.getElementById('vProd')?.value);
   const pres=document.getElementById('vPres')?.value;
@@ -928,13 +939,13 @@ function guardarVenta(){
   const estado=document.getElementById('vEstado')?.value;
   const abonoInput=parseFloat(document.getElementById('vAbono')?.value)||0;
   const notas=document.getElementById('vNotas')?.value||'';
-  if(!fecha||!clienteId||!prodId||cant<=0||pu<=0){showToast('Completa todos los campos requeridos','error');return;}
+  if(!fecha||!clienteId||!vendedor||!prodId||cant<=0||pu<=0){showToast('Completa todos los campos requeridos','error');return;}
   const cliente=DB.clientes.find(c=>c.id===clienteId);
   const prod=DB.productos.find(p=>p.id===prodId);
   const total=pu*cant;
   const abono=estado==='pagado'?total:estado==='fiado'?0:abonoInput;
   const saldo=total-abono;
-  DB.ventas.push({id:DB.nextVentaId++,fecha,clienteId,clienteNombre:cliente.nombre,cat:prod.cat,tipo,presentacion:pres,cantidad:cant,precioUnitario:pu,total,abono,saldo,metodoPago:metodo,estado,notas});
+  DB.ventas.push({id:DB.nextVentaId++,fecha,clienteId,clienteNombre:cliente.nombre,vendedor,cat:prod.cat,tipo,presentacion:pres,cantidad:cant,precioUnitario:pu,total,abono,saldo,metodoPago:metodo,estado,notas});
   if(saldo>0) cliente.saldo=(cliente.saldo||0)+saldo;
   saveDB();
   closeModal();
@@ -1096,6 +1107,92 @@ function filtrarCartera(){
   const tbody=document.getElementById('tbodyCartera');
   if(tbody) tbody.innerHTML=rowsCarteraFull(pendientes);
   lucide.createIcons();
+}
+
+// =====================================================
+// VENDEDORES — Módulo de recaudo por vendedor (Daniela / Luis)
+// Usa exclusivamente DB.ventas (no crea colección separada), por lo que
+// el Dashboard general y Reportes consolidados no se ven afectados.
+// =====================================================
+function renderVendedores(mc){
+  const ventasPeriodo=filterByPeriod(DB.ventas,'fecha');
+
+  const resumen=VENDEDORES.map(nombre=>{
+    const ventasV=ventasPeriodo.filter(v=>v.vendedor===nombre);
+    const totalVendido=ventasV.reduce((a,v)=>a+v.total,0);
+    const totalAbonado=ventasV.reduce((a,v)=>a+v.abono,0);
+    const porRecolectar=DB.ventas.filter(v=>v.vendedor===nombre&&v.saldo>0).reduce((a,v)=>a+v.saldo,0);
+    return {nombre,cantidad:ventasV.length,totalVendido,totalAbonado,porRecolectar};
+  });
+
+  const sinAsignar=ventasPeriodo.filter(v=>!v.vendedor);
+
+  mc.innerHTML=`
+  <div class="section-header">
+    <div class="section-title">Recaudo por vendedor <small>${labelPeriodo()} · dinero efectivo que cada vendedor debe tener en mano</small></div>
+  </div>
+  <div class="chart-grid" style="grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))">
+    ${resumen.map(r=>`
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">${r.nombre}</div>
+          <div class="card-subtitle">${r.cantidad} ventas registradas ${labelPeriodo()}</div>
+        </div>
+        <span class="badge badge-gold-vendedor"><i data-lucide="user" style="width:12px;height:12px"></i> Vendedor</span>
+      </div>
+      <div class="kpi-grid" style="grid-template-columns:1fr 1fr;margin-bottom:0">
+        <div class="kpi-card" style="box-shadow:none;border:1px solid var(--color-divider);padding:var(--space-4)">
+          <div class="kpi-label">Total vendido</div>
+          <div class="kpi-value" style="font-size:var(--text-lg)">${fmt(r.totalVendido)}</div>
+        </div>
+        <div class="kpi-card gold" style="box-shadow:none;padding:var(--space-4)">
+          <div class="kpi-label">Debe tener en efectivo</div>
+          <div class="kpi-value" style="font-size:var(--text-lg)">${fmt(r.totalAbonado)}</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:var(--text-sm);color:var(--color-text-muted)">Cartera pendiente por cobrar</span>
+        <span style="font-weight:700;color:${r.porRecolectar>0?'var(--color-warning)':'var(--color-success)'}">${fmt(r.porRecolectar)}</span>
+      </div>
+    </div>`).join('')}
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">Ventas de ${labelPeriodo()} por vendedor</div>
+  </div>
+  <div class="tabs">
+    ${VENDEDORES.map((n,i)=>`<button class="tab-btn ${i===0?'active':''}" onclick="switchTab('vend-${n}',this)">${n}</button>`).join('')}
+  </div>
+  ${VENDEDORES.map((n,i)=>`
+  <div class="tab-panel ${i===0?'active':''}" id="tab-vend-${n}">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Fecha</th><th>Cliente</th><th>Cat.</th><th class="num">Total</th><th class="num">Abono</th><th class="num">Saldo</th><th>Estado</th></tr></thead>
+        <tbody>${rowsVentasPorVendedor(ventasPeriodo.filter(v=>v.vendedor===n))}</tbody>
+      </table>
+    </div>
+  </div>`).join('')}
+
+  ${sinAsignar.length?`
+  <div class="card" style="margin-top:var(--space-6);border-color:oklch(from var(--color-warning) l c h / 0.3)">
+    <div class="card-header"><div class="card-title" style="color:var(--color-warning)">⚠ Ventas sin vendedor asignado</div></div>
+    <p class="form-hint">${sinAsignar.length} venta(s) registrada(s) antes de activar este módulo no tienen vendedor asociado. No afectan estos cálculos por vendedor.</p>
+  </div>`:''}`;
+}
+
+function rowsVentasPorVendedor(ventas){
+  if(!ventas.length) return `<tr><td colspan="7"><div class="empty-state" style="padding:var(--space-8)"><p>Sin ventas registradas en este período</p></div></td></tr>`;
+  return ventas.slice().sort((a,b)=>b.fecha.localeCompare(a.fecha)).map(v=>`<tr>
+    <td>${v.fecha}</td>
+    <td><strong>${v.clienteNombre}</strong></td>
+    <td><span class="badge badge-neutral">${v.cat}</span></td>
+    <td class="num"><strong>${fmt(v.total)}</strong></td>
+    <td class="num">${fmt(v.abono)}</td>
+    <td class="num" style="color:${v.saldo>0?'var(--color-warning)':'var(--color-success)'};font-weight:600">${fmt(v.saldo)}</td>
+    <td>${badgeEstado(v.estado)}</td>
+  </tr>`).join('');
 }
 
 // =====================================================
@@ -1314,8 +1411,8 @@ function renderReportes(mc){
 }
 function exportarCSV(){
   const ventas=filterByPeriod(DB.ventas,'fecha');
-  const header=['Fecha','Cliente','Tipo','Categoría','Presentación','Cantidad','Precio Unit.','Total','Abono','Saldo','Método','Estado','Notas'];
-  const rows=ventas.map(v=>[v.fecha,v.clienteNombre,v.tipo,v.cat,v.presentacion,v.cantidad,v.precioUnitario,v.total,v.abono,v.saldo,v.metodoPago,v.estado,v.notas||'']);
+  const header=['Fecha','Cliente','Vendedor','Tipo','Categoría','Presentación','Cantidad','Precio Unit.','Total','Abono','Saldo','Método','Estado','Notas'];
+  const rows=ventas.map(v=>[v.fecha,v.clienteNombre,v.vendedor||'',v.tipo,v.cat,v.presentacion,v.cantidad,v.precioUnitario,v.total,v.abono,v.saldo,v.metodoPago,v.estado,v.notas||'']);
   const csv=[header,...rows].map(r=>r.map(c=>`"${c}"`).join(',')).join('\n');
   const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ventas-nidal-trinidad.csv';a.click();
