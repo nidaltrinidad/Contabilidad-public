@@ -351,6 +351,9 @@ a,button,[role="button"],input,textarea,select{transition:color var(--transition
     <button class="nav-item" data-page="reportes" onclick="navigate('reportes',this)">
       <i data-lucide="bar-chart-2"></i> Reportes
     </button>
+    <button class="nav-item" data-page="dividendos" onclick="navigate('dividendos',this)">
+      <i data-lucide="pie-chart"></i> Dividendos
+    </button>
   </nav>
 
   <div class="sidebar-footer">
@@ -410,6 +413,8 @@ a,button,[role="button"],input,textarea,select{transition:color var(--transition
 // DATA STORE (sincronizado en la nube vía Firebase Firestore)
 // =====================================================
 const VENDEDORES = ['Daniela','Luis'];
+// Socios que participan en el reparto de dividendos (cambia los nombres aquí).
+const SOCIOS = ['Socio 1','Socio 2','Socio 3'];
 const DB = {
   productos: [
     {id:1,cat:'C',nombre:'Huevo C',mayoristaPorHuevo:333,mayoristaCubeta:10000,detalPorHuevo:350,detalCubeta:10500,activo:true},
@@ -426,9 +431,13 @@ const DB = {
   ],
   ventas: [],
   gastos: [],
+  liquidaciones: [],   // Cortes de caja de vendedores (no modifican DB.ventas)
+  repartos: [],        // Repartos de dividendos registrados entre socios
   nextVentaId:1,
   nextGastoId:1,
   nextClienteId:4,
+  nextLiquidacionId:1,
+  nextRepartoId:1,
 };
 
 // =====================================================
@@ -465,9 +474,13 @@ function initFirebase(){
       if(s.gastos) DB.gastos = s.gastos;
       if(s.clientes) DB.clientes = s.clientes;
       if(s.productos) DB.productos = s.productos;
+      if(s.liquidaciones) DB.liquidaciones = s.liquidaciones;
+      if(s.repartos) DB.repartos = s.repartos;
       if(s.nextVentaId) DB.nextVentaId = s.nextVentaId;
       if(s.nextGastoId) DB.nextGastoId = s.nextGastoId;
       if(s.nextClienteId) DB.nextClienteId = s.nextClienteId;
+      if(s.nextLiquidacionId) DB.nextLiquidacionId = s.nextLiquidacionId;
+      if(s.nextRepartoId) DB.nextRepartoId = s.nextRepartoId;
       renderPage(currentPage);
       showToast('Datos actualizados por un socio ✓','success');
       _isRemoteUpdate = false;
@@ -489,6 +502,8 @@ function saveDB(){
       ventas: DB.ventas, gastos: DB.gastos, clientes: DB.clientes,
       productos: DB.productos, nextVentaId: DB.nextVentaId,
       nextGastoId: DB.nextGastoId, nextClienteId: DB.nextClienteId,
+      liquidaciones: DB.liquidaciones, repartos: DB.repartos,
+      nextLiquidacionId: DB.nextLiquidacionId, nextRepartoId: DB.nextRepartoId,
       actualizadoEn: new Date().toISOString()
     }).catch(e=>{
       console.warn('saveDB error', e);
@@ -506,7 +521,9 @@ function loadDB(){
 function exportarDatos(){
   const snap={exportado:new Date().toISOString(),version:1,negocio:'Nidal Trinidad',
     ventas:DB.ventas,gastos:DB.gastos,clientes:DB.clientes,productos:DB.productos,
-    nextVentaId:DB.nextVentaId,nextGastoId:DB.nextGastoId,nextClienteId:DB.nextClienteId};
+    nextVentaId:DB.nextVentaId,nextGastoId:DB.nextGastoId,nextClienteId:DB.nextClienteId,
+    liquidaciones:DB.liquidaciones,repartos:DB.repartos,
+    nextLiquidacionId:DB.nextLiquidacionId,nextRepartoId:DB.nextRepartoId};
   const blob=new Blob([JSON.stringify(snap,null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
@@ -528,6 +545,8 @@ function importarDatos(){
         DB.ventas=s.ventas||[];DB.gastos=s.gastos||[];DB.clientes=s.clientes||[];
         if(s.productos) DB.productos=s.productos;
         DB.nextVentaId=s.nextVentaId||1;DB.nextGastoId=s.nextGastoId||1;DB.nextClienteId=s.nextClienteId||1;
+        DB.liquidaciones=s.liquidaciones||[];DB.repartos=s.repartos||[];
+        DB.nextLiquidacionId=s.nextLiquidacionId||1;DB.nextRepartoId=s.nextRepartoId||1;
         saveDB();
         showToast('Datos restaurados correctamente','success');
         renderPage(currentPage);
@@ -590,7 +609,7 @@ function mostrarBienvenida(){
 // NAVIGATION
 // =====================================================
 let currentPage='dashboard';
-const pageTitles={dashboard:'Dashboard',ventas:'Ventas',gastos:'Gastos',cartera:'Cartera',vendedores:'Vendedores',clientes:'Clientes',productos:'Productos y Precios',reportes:'Reportes',config:'Configuración'};
+const pageTitles={dashboard:'Dashboard',ventas:'Ventas',gastos:'Gastos',cartera:'Cartera',vendedores:'Vendedores',clientes:'Clientes',productos:'Productos y Precios',reportes:'Reportes',dividendos:'Reparto de Dividendos',config:'Configuración'};
 
 function navigate(page, btn){
   currentPage=page;
@@ -607,7 +626,7 @@ function navigate(page, btn){
 function renderPage(page){
   const mc=document.getElementById('mainContent');
   mc.innerHTML='';
-  const pages={dashboard:renderDashboard,ventas:renderVentas,gastos:renderGastos,cartera:renderCartera,vendedores:renderVendedores,clientes:renderClientes,productos:renderProductos,reportes:renderReportes,config:renderConfig};
+  const pages={dashboard:renderDashboard,ventas:renderVentas,gastos:renderGastos,cartera:renderCartera,vendedores:renderVendedores,clientes:renderClientes,productos:renderProductos,reportes:renderReportes,dividendos:renderDividendos,config:renderConfig};
   if(pages[page]) pages[page](mc);
   lucide.createIcons();
 }
@@ -1113,6 +1132,8 @@ function filtrarCartera(){
 // VENDEDORES — Módulo de recaudo por vendedor (Daniela / Luis)
 // Usa exclusivamente DB.ventas (no crea colección separada), por lo que
 // el Dashboard general y Reportes consolidados no se ven afectados.
+// Los cortes de caja se guardan en DB.liquidaciones: solo descuentan el
+// saldo pendiente de entrega del vendedor, nunca modifican las ventas.
 // =====================================================
 function renderVendedores(mc){
   const ventasPeriodo=filterByPeriod(DB.ventas,'fecha');
@@ -1122,7 +1143,9 @@ function renderVendedores(mc){
     const totalVendido=ventasV.reduce((a,v)=>a+v.total,0);
     const totalAbonado=ventasV.reduce((a,v)=>a+v.abono,0);
     const porRecolectar=DB.ventas.filter(v=>v.vendedor===nombre&&v.saldo>0).reduce((a,v)=>a+v.saldo,0);
-    return {nombre,cantidad:ventasV.length,totalVendido,totalAbonado,porRecolectar};
+    const pendienteEntrega=pendienteEntregaVendedor(nombre);
+    const ultLiq=ultimaLiquidacion(nombre);
+    return {nombre,cantidad:ventasV.length,totalVendido,totalAbonado,porRecolectar,pendienteEntrega,ultLiq};
   });
 
   const sinAsignar=ventasPeriodo.filter(v=>!v.vendedor);
@@ -1134,12 +1157,17 @@ function renderVendedores(mc){
   <div class="chart-grid" style="grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))">
     ${resumen.map(r=>`
     <div class="card">
-      <div class="card-header">
+      <div class="card-header" style="gap:var(--space-3);flex-wrap:wrap">
         <div>
           <div class="card-title">${r.nombre}</div>
           <div class="card-subtitle">${r.cantidad} ventas registradas ${labelPeriodo()}</div>
         </div>
-        <span class="badge badge-gold-vendedor"><i data-lucide="user" style="width:12px;height:12px"></i> Vendedor</span>
+        <div style="display:flex;align-items:center;gap:var(--space-2)">
+          <span class="badge badge-gold-vendedor"><i data-lucide="user" style="width:12px;height:12px"></i> Vendedor</span>
+          <button class="btn ${r.pendienteEntrega>0?'btn-primary':'btn-secondary'} btn-sm" onclick="abrirLiquidacion('${r.nombre}')" title="Liquidar / hacer corte de caja" ${r.pendienteEntrega>0?'':'disabled style="opacity:.55;cursor:not-allowed"'}>
+            <i data-lucide="wallet" style="width:12px;height:12px"></i> Liquidar
+          </button>
+        </div>
       </div>
       <div class="kpi-grid" style="grid-template-columns:1fr 1fr;margin-bottom:0">
         <div class="kpi-card" style="box-shadow:none;border:1px solid var(--color-divider);padding:var(--space-4)">
@@ -1148,13 +1176,22 @@ function renderVendedores(mc){
         </div>
         <div class="kpi-card gold" style="box-shadow:none;padding:var(--space-4)">
           <div class="kpi-label">Debe tener en efectivo</div>
-          <div class="kpi-value" style="font-size:var(--text-lg)">${fmt(r.totalAbonado)}</div>
+          <div class="kpi-value" style="font-size:var(--text-lg)">${fmt(r.pendienteEntrega)}</div>
+          <div class="kpi-meta">Pendiente de entrega</div>
         </div>
       </div>
       <div class="divider"></div>
       <div style="display:flex;justify-content:space-between;align-items:center">
         <span style="font-size:var(--text-sm);color:var(--color-text-muted)">Cartera pendiente por cobrar</span>
         <span style="font-weight:700;color:${r.porRecolectar>0?'var(--color-warning)':'var(--color-success)'}">${fmt(r.porRecolectar)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:var(--space-2)">
+        <span style="font-size:var(--text-sm);color:var(--color-text-muted)">Recaudado ${labelPeriodo()}</span>
+        <span style="font-weight:700">${fmt(r.totalAbonado)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:var(--space-2)">
+        <span style="font-size:var(--text-sm);color:var(--color-text-muted)">Último corte de caja</span>
+        <span style="font-size:var(--text-sm);font-weight:600">${r.ultLiq?`${r.ultLiq.fecha} · ${fmt(r.ultLiq.monto)}`:'<span class="badge badge-neutral">Sin cortes</span>'}</span>
       </div>
     </div>`).join('')}
   </div>
@@ -1175,6 +1212,16 @@ function renderVendedores(mc){
     </div>
   </div>`).join('')}
 
+  <div class="section-header" style="margin-top:var(--space-8)">
+    <div class="section-title">Historial de cortes de caja <small>Liquidaciones de efectivo entregadas por los vendedores · no afectan ventas, Dashboard ni Reportes</small></div>
+  </div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Fecha</th><th>Vendedor</th><th class="num">Monto entregado</th><th>Recibido por</th><th>Notas</th><th>Acciones</th></tr></thead>
+      <tbody>${rowsLiquidaciones()}</tbody>
+    </table>
+  </div>
+
   ${sinAsignar.length?`
   <div class="card" style="margin-top:var(--space-6);border-color:oklch(from var(--color-warning) l c h / 0.3)">
     <div class="card-header"><div class="card-title" style="color:var(--color-warning)">⚠ Ventas sin vendedor asignado</div></div>
@@ -1192,6 +1239,94 @@ function rowsVentasPorVendedor(ventas){
     <td class="num">${fmt(v.abono)}</td>
     <td class="num" style="color:${v.saldo>0?'var(--color-warning)':'var(--color-success)'};font-weight:600">${fmt(v.saldo)}</td>
     <td>${badgeEstado(v.estado)}</td>
+  </tr>`).join('');
+}
+
+// =====================================================
+// LIQUIDACIÓN DE VENDEDORES (CORTE DE CAJA)
+// Saldo pendiente de entrega = Σ abonos recaudados por el vendedor (histórico)
+//                              − Σ cortes de caja ya entregados.
+// El corte solo crea un registro en DB.liquidaciones; DB.ventas queda intacto,
+// por lo que los ingresos siguen sumando al histórico global del negocio.
+// =====================================================
+function totalRecaudadoVendedor(nombre){
+  return DB.ventas.filter(v=>v.vendedor===nombre).reduce((a,v)=>a+(v.abono||0),0);
+}
+function totalLiquidadoVendedor(nombre){
+  return (DB.liquidaciones||[]).filter(l=>l.vendedor===nombre).reduce((a,l)=>a+(l.monto||0),0);
+}
+function pendienteEntregaVendedor(nombre){
+  return Math.max(0,Math.round(totalRecaudadoVendedor(nombre)-totalLiquidadoVendedor(nombre)));
+}
+function ultimaLiquidacion(nombre){
+  return (DB.liquidaciones||[]).filter(l=>l.vendedor===nombre).slice().sort((a,b)=>b.id-a.id)[0]||null;
+}
+
+function abrirLiquidacion(nombre){
+  const pendiente=pendienteEntregaVendedor(nombre);
+  if(pendiente<=0){showToast(`${nombre} no tiene efectivo pendiente por entregar`,'error');return;}
+  const ult=ultimaLiquidacion(nombre);
+  document.getElementById('modalTitle').textContent=`Corte de caja · ${nombre}`;
+  document.getElementById('modalBody').innerHTML=`
+  <p style="margin-bottom:var(--space-4);font-size:var(--text-sm)">Vas a liquidar el efectivo que <strong>${nombre}</strong> tiene en mano y debe entregar al negocio.</p>
+  <div class="kpi-card gold" style="box-shadow:none;margin-bottom:var(--space-5)">
+    <div class="kpi-label">Efectivo a entregar</div>
+    <div class="kpi-value">${fmt(pendiente)}</div>
+    <div class="kpi-meta"><i data-lucide="history" style="width:12px;height:12px"></i> ${ult?`Acumulado desde el corte del ${ult.fecha}`:'Primer corte registrado para este vendedor'}</div>
+  </div>
+  <div class="form-row">
+    <div class="form-group">
+      <label class="form-label" for="lqFecha">Fecha del corte <span>*</span></label>
+      <input class="form-input" type="date" id="lqFecha" value="${today()}">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="lqRecibe">Recibido por</label>
+      <select class="form-select" id="lqRecibe">${SOCIOS.map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="lqNotas">Notas</label>
+    <textarea class="form-textarea" id="lqNotas" placeholder="Opcional…"></textarea>
+  </div>
+  <p class="form-hint">Al confirmar, el saldo "Debe tener en efectivo" de ${nombre} volverá a <strong>$0</strong>. Las ventas no se modifican: los ingresos siguen sumando al histórico global, Dashboard, Reportes y Dividendos.</p>`;
+  document.getElementById('modalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="confirmarLiquidacion('${nombre}')"><i data-lucide="check-circle" style="width:14px;height:14px"></i> Confirmar corte</button>`;
+  openModal();
+}
+
+function confirmarLiquidacion(nombre){
+  const monto=pendienteEntregaVendedor(nombre);
+  if(monto<=0){showToast('No hay saldo pendiente por liquidar','error');closeModal();return;}
+  const fecha=document.getElementById('lqFecha')?.value||today();
+  const recibidoPor=document.getElementById('lqRecibe')?.value||'';
+  const notas=document.getElementById('lqNotas')?.value||'';
+  if(!DB.liquidaciones) DB.liquidaciones=[];
+  DB.liquidaciones.push({
+    id:DB.nextLiquidacionId++,vendedor:nombre,fecha,monto,recibidoPor,notas,
+    recaudadoAcumulado:Math.round(totalRecaudadoVendedor(nombre)),
+    creadoEn:new Date().toISOString()
+  });
+  saveDB();closeModal();
+  showToast(`Corte de ${nombre} registrado: ${fmt(monto)} entregado`,'success');
+  renderPage('vendedores');
+}
+
+function eliminarLiquidacion(id){
+  if(!confirm('¿Eliminar este corte de caja? El monto volverá a figurar como pendiente de entrega del vendedor.')) return;
+  DB.liquidaciones=(DB.liquidaciones||[]).filter(l=>l.id!==id);
+  saveDB();
+  showToast('Corte de caja eliminado','success');renderPage('vendedores');
+}
+
+function rowsLiquidaciones(){
+  const lista=(DB.liquidaciones||[]).slice().sort((a,b)=>b.id-a.id);
+  if(!lista.length) return `<tr><td colspan="6"><div class="empty-state" style="padding:var(--space-8)"><i data-lucide="wallet"></i><p style="margin:0">Aún no se han registrado cortes de caja</p></div></td></tr>`;
+  return lista.map(l=>`<tr>
+    <td>${l.fecha}</td>
+    <td><span class="badge badge-gold-vendedor">${l.vendedor}</span></td>
+    <td class="num" style="font-weight:700;color:var(--color-success)">${fmt(l.monto)}</td>
+    <td>${l.recibidoPor||'—'}</td>
+    <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.notas||'—'}</td>
+    <td><button class="btn btn-ghost btn-sm btn-icon" onclick="eliminarLiquidacion(${l.id})" title="Eliminar" aria-label="Eliminar"><i data-lucide="trash-2" style="width:14px;height:14px"></i></button></td>
   </tr>`).join('');
 }
 
@@ -1419,6 +1554,226 @@ function exportarCSV(){
   showToast('CSV descargado','success');
 }
 function imprimirReporte(){window.print();}
+
+// =====================================================
+// REPARTO DE DIVIDENDOS — 3 socios en partes iguales
+// Ganancia neta = Ingresos totales (ventas) − Gastos/costos.
+// Base de cálculo:
+//   · 'periodo' → usa el filtro global de la barra superior.
+//   · 'corte'   → todo lo registrado después del último reparto (por ID de
+//                 venta/gasto), para no repartir dos veces la misma ganancia.
+// Registrar un reparto solo guarda un registro en DB.repartos; no altera
+// ventas ni gastos.
+// =====================================================
+let divBase='periodo';
+
+function ultimoReparto(){
+  return (DB.repartos||[]).slice().sort((a,b)=>b.id-a.id)[0]||null;
+}
+
+function calcularDividendos(){
+  let ventas,gastos,descripcion;
+  if(divBase==='corte'){
+    const ult=ultimoReparto();
+    const vId=ult?(ult.ultimaVentaId||0):0;
+    const gId=ult?(ult.ultimoGastoId||0):0;
+    ventas=DB.ventas.filter(v=>v.id>vId);
+    gastos=DB.gastos.filter(g=>g.id>gId);
+    descripcion=ult?`desde el último reparto (${ult.fecha})`:'histórico completo (aún no hay repartos)';
+  }else{
+    ventas=filterByPeriod(DB.ventas,'fecha');
+    gastos=filterByPeriod(DB.gastos,'fecha');
+    descripcion=labelPeriodo()||'período seleccionado';
+  }
+  const n=SOCIOS.length;
+  const ingresos=Math.round(ventas.reduce((a,v)=>a+(v.total||0),0));
+  const egresos=Math.round(gastos.reduce((a,g)=>a+(g.monto||0),0));
+  const utilidad=ingresos-egresos;
+  const porSocio=utilidad>0?Math.floor(utilidad/n):0;
+  const residuo=utilidad>0?utilidad-porSocio*n:0;
+  const cobrado=Math.round(ventas.reduce((a,v)=>a+(v.abono||0),0));
+  const porCobrar=Math.round(ventas.reduce((a,v)=>a+(v.saldo||0),0));
+  return {ventas,gastos,descripcion,ingresos,egresos,utilidad,porSocio,residuo,cobrado,porCobrar,n};
+}
+
+function renderDividendos(mc){
+  const d=calcularDividendos();
+  const hayGanancia=d.utilidad>0;
+  const pct=(100/d.n).toFixed(1).replace('.',',');
+
+  mc.innerHTML=`
+  <div class="section-header">
+    <div class="section-title">Reparto de Dividendos <small>Ganancia neta ${d.descripcion} · dividida en ${d.n} partes iguales entre los socios</small></div>
+    <div style="display:flex;gap:var(--space-3);flex-wrap:wrap;align-items:center">
+      <div class="date-filter">
+        <i data-lucide="filter" style="width:14px;height:14px;color:var(--color-text-muted)"></i>
+        <select id="divBaseSelect" onchange="divBase=this.value;renderPage('dividendos')" aria-label="Base de cálculo">
+          <option value="periodo" ${divBase==='periodo'?'selected':''}>Período del filtro superior</option>
+          <option value="corte" ${divBase==='corte'?'selected':''}>Desde el último reparto</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="abrirRegistroReparto()" ${hayGanancia?'':'disabled style="opacity:.55;cursor:not-allowed"'}>
+        <i data-lucide="scissors" style="width:16px;height:16px"></i> Registrar reparto
+      </button>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card primary">
+      <div class="kpi-label">Ingresos totales</div>
+      <div class="kpi-value">${fmt(d.ingresos)}</div>
+      <div class="kpi-meta"><i data-lucide="trending-up" style="width:12px;height:12px"></i> ${d.ventas.length} ventas</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Gastos / costos</div>
+      <div class="kpi-value" style="color:var(--color-error)">${fmt(d.egresos)}</div>
+      <div class="kpi-meta"><i data-lucide="trending-down" style="width:12px;height:12px"></i> ${d.gastos.length} registros</div>
+    </div>
+    <div class="kpi-card ${d.utilidad>=0?'gold':''}">
+      <div class="kpi-label">Ganancia neta</div>
+      <div class="kpi-value" style="color:${d.utilidad>=0?'var(--color-gold)':'var(--color-error)'}">${fmt(d.utilidad)}</div>
+      <div class="kpi-meta">Margen: ${d.ingresos>0?((d.utilidad/d.ingresos)*100).toFixed(1)+'%':'—'}</div>
+    </div>
+    <div class="kpi-card gold">
+      <div class="kpi-label">Le corresponde a cada socio</div>
+      <div class="kpi-value">${fmt(d.porSocio)}</div>
+      <div class="kpi-meta"><i data-lucide="users" style="width:12px;height:12px"></i> ${d.n} socios · ${pct}% c/u</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(360px,100%),1fr));gap:var(--space-6);margin-bottom:var(--space-8)">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Cálculo del reparto</div>
+          <div class="card-subtitle">Ganancia neta = Ingresos totales − Gastos/costos</div>
+        </div>
+        <span class="badge badge-green">${d.n} socios</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:var(--space-3)">
+        ${[
+          ['Ingresos totales',fmt(d.ingresos),'var(--color-success)'],
+          ['(−) Gastos / costos',fmt(d.egresos),'var(--color-error)'],
+          ['(=) Ganancia neta',fmt(d.utilidad),d.utilidad>=0?'var(--color-gold)':'var(--color-error)'],
+          [`(÷) Número de socios`,String(d.n),'var(--color-text)'],
+          ['(=) Dividendo por socio',fmt(d.porSocio),'var(--color-gold)'],
+        ].map(([label,val,color])=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:var(--space-3) 0;border-bottom:1px solid var(--color-divider)">
+          <span style="color:var(--color-text-muted);font-size:var(--text-sm)">${label}</span>
+          <span style="font-weight:700;font-variant-numeric:tabular-nums;color:${color}">${val}</span>
+        </div>`).join('')}
+      </div>
+      ${d.residuo>0?`<p class="form-hint" style="margin-top:var(--space-3)">Residuo de redondeo: <strong>${fmt(d.residuo)}</strong> (no divisible en pesos exactos) queda en la caja del negocio.</p>`:''}
+      ${d.porCobrar>0?`<p class="form-hint" style="margin-top:var(--space-3)">⚠ De los ingresos, <strong style="color:var(--color-warning)">${fmt(d.porCobrar)}</strong> aún está en cartera sin cobrar. Efectivo realmente recaudado: <strong>${fmt(d.cobrado)}</strong>.</p>`:''}
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">Lo que recibe cada socio</div>
+          <div class="card-subtitle">Monto exacto al realizar el corte ${d.descripcion}</div>
+        </div>
+      </div>
+      ${hayGanancia?`
+      <div class="kpi-grid" style="grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));margin-bottom:0">
+        ${SOCIOS.map(s=>`
+        <div class="kpi-card gold" style="box-shadow:none;padding:var(--space-4)">
+          <div class="kpi-label">${s}</div>
+          <div class="kpi-value" style="font-size:var(--text-lg)">${fmt(d.porSocio)}</div>
+          <div class="kpi-meta">${pct}% de la ganancia</div>
+        </div>`).join('')}
+      </div>
+      <div class="divider"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:var(--text-sm);color:var(--color-text-muted)">Total a repartir</span>
+        <span style="font-weight:700;color:var(--color-gold)">${fmt(d.porSocio*d.n)}</span>
+      </div>`:`
+      <div class="empty-state" style="padding:var(--space-8)">
+        <i data-lucide="alert-circle"></i>
+        <h3>${d.utilidad<0?'Hay pérdida en este período':'Sin ganancia para repartir'}</h3>
+        <p style="margin-bottom:0">${d.utilidad<0?`La pérdida es de ${fmt(Math.abs(d.utilidad))} (${fmt(Math.ceil(Math.abs(d.utilidad)/d.n))} por socio). No hay dividendos que repartir.`:'Cuando los ingresos superen los gastos aparecerá aquí el monto por socio.'}</p>
+      </div>`}
+    </div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-title">Historial de repartos <small>${(DB.repartos||[]).length} repartos registrados</small></div>
+  </div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Fecha</th><th>Base</th><th class="num">Ingresos</th><th class="num">Gastos</th><th class="num">Ganancia neta</th><th class="num">Por socio</th><th>Notas</th><th>Acciones</th></tr></thead>
+      <tbody>${rowsRepartos()}</tbody>
+    </table>
+  </div>
+  <p class="form-hint" style="margin-top:var(--space-3)">Con la base "Desde el último reparto" solo se suman las ventas y gastos registrados después del último reparto, así nunca se reparte dos veces la misma ganancia.</p>`;
+}
+
+function rowsRepartos(){
+  const lista=(DB.repartos||[]).slice().sort((a,b)=>b.id-a.id);
+  if(!lista.length) return `<tr><td colspan="8"><div class="empty-state" style="padding:var(--space-8)"><i data-lucide="pie-chart"></i><p style="margin:0">Aún no se han registrado repartos de dividendos</p></div></td></tr>`;
+  return lista.map(r=>`<tr>
+    <td>${r.fecha}</td>
+    <td><span class="badge badge-neutral">${r.descripcion||r.base}</span></td>
+    <td class="num">${fmt(r.ingresos)}</td>
+    <td class="num" style="color:var(--color-error)">${fmt(r.egresos)}</td>
+    <td class="num" style="font-weight:700;color:var(--color-gold)">${fmt(r.utilidad)}</td>
+    <td class="num"><strong>${fmt(r.porSocio)}</strong></td>
+    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.notas||'—'}</td>
+    <td><button class="btn btn-ghost btn-sm btn-icon" onclick="eliminarReparto(${r.id})" title="Eliminar" aria-label="Eliminar"><i data-lucide="trash-2" style="width:14px;height:14px"></i></button></td>
+  </tr>`).join('');
+}
+
+function abrirRegistroReparto(){
+  const d=calcularDividendos();
+  if(d.utilidad<=0){showToast('No hay ganancia neta para repartir','error');return;}
+  document.getElementById('modalTitle').textContent='Registrar reparto de dividendos';
+  document.getElementById('modalBody').innerHTML=`
+  <p style="margin-bottom:var(--space-4);font-size:var(--text-sm)">Corte de dividendos <strong>${d.descripcion}</strong>.</p>
+  <div class="table-wrap" style="margin-bottom:var(--space-4)">
+    <table class="data-table">
+      <tbody>
+        <tr><td>Ingresos totales</td><td class="num">${fmt(d.ingresos)}</td></tr>
+        <tr><td>(−) Gastos / costos</td><td class="num" style="color:var(--color-error)">${fmt(d.egresos)}</td></tr>
+        <tr><td><strong>Ganancia neta</strong></td><td class="num" style="color:var(--color-gold);font-weight:700">${fmt(d.utilidad)}</td></tr>
+        ${SOCIOS.map(s=>`<tr><td>${s}</td><td class="num"><strong>${fmt(d.porSocio)}</strong></td></tr>`).join('')}
+        ${d.residuo>0?`<tr><td style="color:var(--color-text-muted)">Residuo (queda en caja)</td><td class="num" style="color:var(--color-text-muted)">${fmt(d.residuo)}</td></tr>`:''}
+      </tbody>
+    </table>
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="rpNotas">Notas</label>
+    <textarea class="form-textarea" id="rpNotas" placeholder="Opcional… (ej. entregado en efectivo / transferencia)"></textarea>
+  </div>
+  <p class="form-hint">El reparto queda guardado en el historial. Las ventas y gastos no se modifican.</p>`;
+  document.getElementById('modalFooter').innerHTML=`<button class="btn btn-secondary" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="guardarReparto()"><i data-lucide="save" style="width:14px;height:14px"></i> Confirmar reparto</button>`;
+  openModal();
+}
+
+function guardarReparto(){
+  const d=calcularDividendos();
+  if(d.utilidad<=0){showToast('No hay ganancia neta para repartir','error');closeModal();return;}
+  const notas=document.getElementById('rpNotas')?.value||'';
+  const maxVentaId=Math.max(DB.nextVentaId-1,0,...DB.ventas.map(v=>v.id));
+  const maxGastoId=Math.max(DB.nextGastoId-1,0,...DB.gastos.map(g=>g.id));
+  if(!DB.repartos) DB.repartos=[];
+  DB.repartos.push({
+    id:DB.nextRepartoId++,fecha:today(),base:divBase,descripcion:d.descripcion,
+    ingresos:d.ingresos,egresos:d.egresos,utilidad:d.utilidad,
+    socios:SOCIOS.slice(),porSocio:d.porSocio,residuo:d.residuo,
+    ultimaVentaId:maxVentaId,ultimoGastoId:maxGastoId,
+    notas,creadoEn:new Date().toISOString()
+  });
+  saveDB();closeModal();
+  showToast(`Reparto registrado: ${fmt(d.porSocio)} por socio`,'success');
+  renderPage('dividendos');
+}
+
+function eliminarReparto(id){
+  if(!confirm('¿Eliminar este reparto del historial?')) return;
+  DB.repartos=(DB.repartos||[]).filter(r=>r.id!==id);
+  saveDB();
+  showToast('Reparto eliminado','success');renderPage('dividendos');
+}
 
 // =====================================================
 // CONFIG
